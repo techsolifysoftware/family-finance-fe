@@ -1,35 +1,35 @@
+import type { LucideIcon } from "lucide-react";
 import {
-  Menu,
-  Users,
-  X,
+  Building2,
   LayoutDashboard,
+  LogOut,
+  Menu,
   Receipt,
   Settings as SettingsIcon,
   Target,
-  LogOut,
-  Building2,
   UserCog,
+  Users,
+  X,
 } from "lucide-react";
 import React from "react";
 import {
   Link,
+  Navigate,
   Route,
   BrowserRouter as Router,
   Routes,
   useLocation,
-  Navigate,
   useNavigate,
 } from "react-router-dom";
-import Dashboard from "./pages/Dashboard";
-import Members from "./pages/Members";
-import Transactions from "./pages/Transactions";
-import Events from "./pages/Events";
-import Settings from "./pages/Settings";
-import Login from "./pages/Login";
-import Branches from "./pages/Branches";
-import UsersPage from "./pages/Users";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import type { LucideIcon } from "lucide-react";
+import Branches from "./pages/Branches";
+import Dashboard from "./pages/Dashboard";
+import Events from "./pages/Events";
+import Login from "./pages/Login";
+import Members from "./pages/Members";
+import Settings from "./pages/Settings";
+import Transactions from "./pages/Transactions";
+import UsersPage from "./pages/Users";
 
 const SidebarItem = ({
   icon: Icon,
@@ -70,7 +70,7 @@ const Sidebar = ({
   isOpen: boolean;
   setIsOpen: (val: boolean) => void;
 }) => {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isAuthenticated } = useAuth();
   const navItems = [
     { path: "/", label: "Tổng quan", icon: LayoutDashboard },
     { path: "/events", label: "Sự kiện & Dự toán", icon: Target },
@@ -109,14 +109,16 @@ const Sidebar = ({
               onClick={() => setIsOpen(false)}
             />
           ))}
-          <div className="pt-4 mt-4 border-t border-gray-100">
-            <SidebarItem
-              to="/settings"
-              icon={SettingsIcon}
-              label="Cài đặt"
-              onClick={() => setIsOpen(false)}
-            />
-          </div>
+          {isAuthenticated && (
+            <div className="pt-4 mt-4 border-t border-gray-100">
+              <SidebarItem
+                to="/settings"
+                icon={SettingsIcon}
+                label="Cài đặt"
+                onClick={() => setIsOpen(false)}
+              />
+            </div>
+          )}
         </nav>
       </div>
       {isOpen && (
@@ -133,10 +135,6 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
 
   const handleLogout = () => {
     logout();
@@ -159,27 +157,38 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
           <div className="flex-1" />
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex flex-col items-end hidden sm:flex">
-                <span className="text-sm font-bold text-gray-900">
-                  {user?.name}
-                </span>
-                <span className="text-[10px] font-medium text-primary-600 bg-primary-50 px-1.5 py-0.5 rounded uppercase tracking-wider">
-                  {user?.role}
-                </span>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/20">
-                {user?.name?.[0].toUpperCase()}
-              </div>
-            </div>
-            <div className="w-px h-6 bg-gray-200 mx-2" />
-            <button
-              onClick={handleLogout}
-              className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors group"
-              title="Đăng xuất"
-            >
-              <LogOut className="w-6 h-6 group-hover:scale-110 transition-transform" />
-            </button>
+            {isAuthenticated ? (
+              <>
+                <div className="flex items-center gap-3">
+                  <div className="flex flex-col items-end hidden sm:flex">
+                    <span className="text-sm font-bold text-gray-900">
+                      {user?.name}
+                    </span>
+                    <span className="text-[10px] font-medium text-primary-600 bg-primary-50 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                      {user?.role}
+                    </span>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-primary-500/20">
+                    {user?.name?.[0].toUpperCase()}
+                  </div>
+                </div>
+                <div className="w-px h-6 bg-gray-200 mx-2" />
+                <button
+                  onClick={handleLogout}
+                  className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors group"
+                  title="Đăng xuất"
+                >
+                  <LogOut className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                </button>
+              </>
+            ) : (
+              <Link
+                to="/login"
+                className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium text-sm shadow-sm"
+              >
+                Đăng nhập
+              </Link>
+            )}
           </div>
         </header>
 

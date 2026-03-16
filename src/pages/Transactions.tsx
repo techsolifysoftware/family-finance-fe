@@ -183,6 +183,11 @@ export default function Transactions() {
             </Button>
           </div>
         )}
+        {!canManageTransactions && (
+          <Button variant="outline" onClick={exportToExcel}>
+            <Download className="w-4 h-4 mr-2" /> Xuất Excel
+          </Button>
+        )}
       </div>
 
       <Card className="border-border/50 shadow-sm overflow-hidden">
