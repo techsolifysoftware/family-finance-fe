@@ -39,8 +39,8 @@ export default function Events() {
     setLoading(true);
     try {
       const response = await api.get("/events", { params: { page, limit: 12 } });
-      setEvents(response.data.data);
-      setPagination(response.data.meta);
+      setEvents(response.data?.data || []);
+      setPagination(response.data?.meta || { total: 0, page: 1, lastPage: 1 });
     } catch (err) {
       console.error(err);
       toast.error("Không thể tải danh sách sự kiện");
@@ -104,7 +104,7 @@ export default function Events() {
       name: formData.name,
       date: new Date(formData.date).toISOString(),
       budget: budget,
-      rounds: rounds.filter((r) => !r.id).map((r) => ({ name: r.name })),
+      rounds: (rounds || []).filter((r) => !r.id).map((r) => ({ name: r.name })),
     };
 
     try {
@@ -191,7 +191,7 @@ export default function Events() {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-              {events.map((event) => (
+              {(events || []).map((event) => (
                 <EventCard
                   key={event.id}
                   event={event}

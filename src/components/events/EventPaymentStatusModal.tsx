@@ -91,11 +91,11 @@ export function EventPaymentStatusModal({
           status: statusFilter,
         },
       });
-      setData(response.data.data);
+      setData(response.data?.data || []);
       setPagination((prev) => ({
         ...prev,
-        total: response.data.meta.total,
-        lastPage: response.data.meta.lastPage,
+        total: response.data?.meta?.total || 0,
+        lastPage: response.data?.meta?.lastPage || 1,
       }));
     } catch (error) {
       console.error("Error fetching payment status:", error);
@@ -198,7 +198,7 @@ export function EventPaymentStatusModal({
                   <TableHeader className="bg-muted/30 sticky top-0 z-10 backdrop-blur-md border-b">
                     <TableRow className="hover:bg-transparent border-border/40">
                       <TableHead className="w-[300px] font-black text-foreground uppercase text-[11px] tracking-widest px-6 h-12">Thành viên</TableHead>
-                      {data[0]?.rounds.map((r) => (
+                      {(data[0]?.rounds || []).map((r) => (
                         <TableHead
                           key={r.roundId}
                           className="text-center font-black text-foreground uppercase text-[11px] tracking-widest h-12"
@@ -209,7 +209,7 @@ export function EventPaymentStatusModal({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {data.map((m) => (
+                    {(data || []).map((m) => (
                       <TableRow
                         key={m.memberId}
                         className="group hover:bg-primary/[0.02] border-border/30 transition-colors"
@@ -227,7 +227,7 @@ export function EventPaymentStatusModal({
                             </div>
                           </div>
                         </TableCell>
-                        {m.rounds.map((r) => (
+                        {(m.rounds || []).map((r) => (
                           <TableCell key={r.roundId} className="text-center py-4">
                             {r.paid ? (
                               <div className="inline-flex items-center gap-1.5 text-emerald-600 font-bold text-[10px] bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20 uppercase tracking-tight shadow-sm">
