@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import {
   AlertCircle,
   Calendar,
+  CheckCircle2,
   ChevronRight,
   Edit2,
   MoreVertical,
@@ -30,9 +31,16 @@ interface EventCardProps {
   canManage: boolean;
   onEdit: (event: Event) => void;
   onDelete: (id: number) => void;
+  onViewStatus: (event: Event) => void;
 }
 
-export function EventCard({ event, canManage, onEdit, onDelete }: EventCardProps) {
+export function EventCard({
+  event,
+  canManage,
+  onEdit,
+  onDelete,
+  onViewStatus,
+}: EventCardProps) {
   const totalExpense =
     event.transactions
       ?.filter((t) => t.type === "EXPENSE")
@@ -128,7 +136,18 @@ export function EventCard({ event, canManage, onEdit, onDelete }: EventCardProps
           </div>
         )}
       </CardContent>
-      <CardFooter className="pt-0 pb-6">
+      <CardFooter className="pt-0 pb-6 flex flex-col gap-2">
+        <Button
+          variant="outline"
+          className="w-full justify-between h-9 px-3 border-primary/20 hover:bg-primary/5 hover:text-primary transition-all font-semibold"
+          onClick={() => onViewStatus(event)}
+        >
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4" />
+            <span className="text-sm">Tình trạng đóng góp</span>
+          </div>
+          <ChevronRight className="w-4 h-4 opacity-50" />
+        </Button>
         <Button
           variant="ghost"
           className="w-full justify-between group-hover:bg-muted/50 h-9 px-3"

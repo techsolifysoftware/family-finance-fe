@@ -68,7 +68,11 @@ export default function Users() {
       return;
     }
 
-    if (window.confirm("Bạn có chắc chắn muốn xóa tài khoản này? Người dùng sẽ không thể đăng nhập được nữa.")) {
+    if (
+      window.confirm(
+        "Bạn có chắc chắn muốn xóa tài khoản này? Người dùng sẽ không thể đăng nhập được nữa.",
+      )
+    ) {
       try {
         await api.delete(`/users/${id}`);
         toast.success("Đã xóa tài khoản thành công");
@@ -81,7 +85,7 @@ export default function Users() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       const { password, ...rest } = formData;
       const payload = editingId && !password ? rest : formData;
@@ -97,35 +101,48 @@ export default function Users() {
       fetchUsers();
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
-      const message = error.response?.data?.message || "Lỗi khi lưu thông tin người dùng";
+      const message =
+        error.response?.data?.message || "Lỗi khi lưu thông tin người dùng";
       toast.error(message);
     }
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Quản lý tài khoản</h1>
-          <p className="text-muted-foreground mt-1">
-            Quản lý quyền truy cập hệ thống cho các thành viên ban trị sự.
+    <div className="space-y-6 lg:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 px-0 sm:px-0">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 px-4 sm:px-0">
+        <div className="space-y-1">
+          <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
+            Quản trị Tài khoản
+          </h1>
+          <p className="text-muted-foreground text-sm lg:text-base max-w-lg">
+            Cấp quyền và quản lý danh tính các thành viên ban trị sự tham gia
+            vận hành hệ thống.
           </p>
         </div>
-        <Button onClick={() => setShowModal(true)} className="shadow-sm">
-          <Plus className="w-4 h-4 mr-2" /> Tạo tài khoản
+        <Button
+          onClick={() => setShowModal(true)}
+          className="w-full sm:w-auto shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5 active:translate-y-0 h-11 px-6 rounded-xl font-bold"
+        >
+          <Plus className="w-5 h-5 mr-2" /> Tạo tài khoản mới
         </Button>
       </div>
 
-      <Card className="border-border/50 shadow-sm overflow-hidden">
-        <CardContent className="p-0">
-          <UserTable
-            users={users}
-            loading={loading}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        </CardContent>
-      </Card>
+      <div className="grid gap-4 px-4 sm:px-0">
+        <Card className="border-none shadow-xl shadow-foreground/5 bg-card/50 backdrop-blur-sm overflow-hidden rounded-2xl ring-1 ring-border/50">
+          <CardContent className="p-0">
+            <UserTable
+              users={users}
+              loading={loading}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </CardContent>
+        </Card>
+
+        <div className="flex items-center justify-between px-2 text-[11px] text-muted-foreground font-medium uppercase tracking-widest opacity-60">
+          <span>Tổng số: {users.length} tài khoản</span>
+        </div>
+      </div>
 
       <UserFormModal
         isOpen={showModal}

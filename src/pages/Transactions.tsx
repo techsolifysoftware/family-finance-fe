@@ -2,12 +2,14 @@ import { TransactionFilters } from "@/components/transactions/TransactionFilters
 import { TransactionFormModal } from "@/components/transactions/TransactionFormModal";
 import { TransactionTable } from "@/components/transactions/TransactionTable";
 import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Branch, Event, Member, Transaction } from "@/types";
 import { format } from "date-fns";
 import { saveAs } from "file-saver";
 import { Download, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import { api } from "../api";
@@ -22,6 +24,11 @@ export default function Transactions() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    lastPage: 1,
+  });
 
   const [formData, setFormData] = useState({
     type: "INCOME",
@@ -31,6 +38,7 @@ export default function Transactions() {
     memberId: "none",
     branchId: "none",
     eventId: "none",
+    paymentRoundId: "none",
   });
 
   const [filters, setFilters] = useState({
@@ -38,18 +46,35 @@ export default function Transactions() {
     startDate: "",
     endDate: "",
     search: "",
+    eventId: "ALL",
+    paymentRoundId: "ALL",
+    page: 1,
   });
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      interface QueryParams {
+        branchId?: string;
+        startDate?: string;
+        endDate?: string;
+        search?: string;
+        eventId?: string | number;
+        paymentRoundId?: string | number;
+        page?: number;
+      }
+      const qParams: QueryParams = { ...filters };
+      if (qParams.eventId === "ALL") delete qParams.eventId;
+      if (qParams.paymentRoundId === "ALL") delete qParams.paymentRoundId;
+
       const [txRes, memRes, evRes, brRes] = await Promise.all([
-        api.get("/transactions", { params: filters }),
+        api.get("/transactions", { params: qParams }),
         api.get("/members"),
         api.get("/events"),
         api.get("/branches"),
       ]);
-      setTransactions(txRes.data);
+      setTransactions(txRes.data.data);
+      setPagination(txRes.data.meta);
       setMembers(memRes.data);
       setEvents(evRes.data);
       setBranches(brRes.data);
@@ -59,12 +84,25 @@ export default function Transactions() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.eventId) {
+      setFilters((prev) => ({
+        ...prev,
+        eventId: location.state.eventId,
+        page: 1,
+      }));
+      // Clear state to avoid re-filtering on refresh or subsequent visits
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [fetchData]);
 
   const closeModal = () => {
     setShowModal(false);
@@ -77,6 +115,7 @@ export default function Transactions() {
       memberId: "none",
       branchId: "none",
       eventId: "none",
+      paymentRoundId: "none",
     });
   };
 
@@ -90,6 +129,7 @@ export default function Transactions() {
       memberId: tx.memberId?.toString() || "none",
       branchId: tx.branchId?.toString() || "none",
       eventId: tx.eventId?.toString() || "none",
+      paymentRoundId: tx.paymentRoundId?.toString() || "none",
     });
     setShowModal(true);
   };
@@ -108,20 +148,35 @@ export default function Transactions() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.memberId || formData.memberId === "none") {
+      toast.error("Vui lòng chọn người đóng/chi");
+      return;
+    }
+    if (!formData.eventId || formData.eventId === "none") {
+      toast.error("Vui lòng chọn liên kết sự kiện");
+      return;
+    }
+
+    const selectedEvent = events.find(e => e.id.toString() === formData.eventId);
+    const showRounds = formData.type === "INCOME" && selectedEvent && selectedEvent.rounds && selectedEvent.rounds.length > 0;
+    
+    if (showRounds && (!formData.paymentRoundId || formData.paymentRoundId === "none")) {
+      toast.error("Vui lòng chọn đợt đóng");
+      return;
+    }
+
     const payload = {
       ...formData,
       amount: parseFloat(formData.amount.replace(/\./g, "").replace(/,/g, "")),
-      memberId:
-        formData.memberId && formData.memberId !== "none"
-          ? parseInt(formData.memberId)
-          : null,
+      memberId: parseInt(formData.memberId),
       branchId:
         formData.branchId && formData.branchId !== "none"
           ? parseInt(formData.branchId)
           : null,
-      eventId:
-        formData.eventId && formData.eventId !== "none"
-          ? parseInt(formData.eventId)
+      eventId: parseInt(formData.eventId),
+      paymentRoundId:
+        formData.paymentRoundId && formData.paymentRoundId !== "none"
+          ? parseInt(formData.paymentRoundId)
           : null,
     };
 
@@ -144,7 +199,7 @@ export default function Transactions() {
     const exportData = transactions.map((tx: Transaction) => ({
       Mã: tx.id,
       Loại: tx.type === "INCOME" ? "Thu" : "Chi",
-      "Nội dung": tx.description,
+      "Nội dung": tx.description || "-",
       "Số Tiền (₫)": tx.amount,
       "Người thực hiện": tx.member ? tx.member.name : "Hệ thống",
       "Chi nhánh": tx.branch?.name || "N/A",
@@ -173,41 +228,52 @@ export default function Transactions() {
             Quản lý dòng tiền và các đóng góp của thành viên.
           </p>
         </div>
-        {canManageTransactions && (
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={exportToExcel}>
-              <Download className="w-4 h-4 mr-2" /> Xuất Excel
-            </Button>
-            <Button onClick={() => setShowModal(true)} className="shadow-sm">
-              <Plus className="w-4 h-4 mr-2" /> Thêm giao dịch
-            </Button>
-          </div>
-        )}
-        {!canManageTransactions && (
+        <div className="flex items-center gap-2">
           <Button variant="outline" onClick={exportToExcel}>
             <Download className="w-4 h-4 mr-2" /> Xuất Excel
           </Button>
-        )}
+          {canManageTransactions && (
+            <Button onClick={() => setShowModal(true)} className="shadow-sm">
+              <Plus className="w-4 h-4 mr-2" /> Thêm giao dịch
+            </Button>
+          )}
+        </div>
       </div>
 
       <Card className="border-border/50 shadow-sm overflow-hidden">
         <TransactionFilters
           search={filters.search}
-          onSearchChange={(val) => setFilters({ ...filters, search: val })}
+          onSearchChange={(val) => setFilters({ ...filters, search: val, page: 1 })}
           branchId={filters.branchId}
-          onBranchChange={(val) => setFilters({ ...filters, branchId: val })}
+          onBranchChange={(val) => setFilters({ ...filters, branchId: val, page: 1 })}
           branches={branches}
+          eventId={filters.eventId.toString()}
+          onEventChange={(val) => setFilters({ ...filters, eventId: val, paymentRoundId: "ALL", page: 1 })}
+          events={events}
+          paymentRoundId={filters.paymentRoundId.toString()}
+          onRoundChange={(val) => setFilters({ ...filters, paymentRoundId: val, page: 1 })}
         />
         <CardContent className="p-0">
           <TransactionTable
             transactions={transactions}
-            loading={loading}
+            loading={loading && transactions.length === 0}
             onEdit={handleEdit}
             onDelete={handleDelete}
             canManage={canManageTransactions}
           />
         </CardContent>
       </Card>
+
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-2">
+        <p className="text-sm text-muted-foreground">
+          Hiển thị <span className="font-bold text-foreground">{transactions.length}</span> trên <span className="font-bold text-foreground">{pagination.total}</span> giao dịch
+        </p>
+        <Pagination
+          currentPage={pagination.page}
+          totalPages={pagination.lastPage}
+          onPageChange={(page) => setFilters({ ...filters, page })}
+        />
+      </div>
 
       <TransactionFormModal
         isOpen={showModal}
@@ -217,7 +283,6 @@ export default function Transactions() {
         setFormData={setFormData}
         editingId={editingId}
         members={members}
-        branches={branches}
         events={events}
       />
     </div>

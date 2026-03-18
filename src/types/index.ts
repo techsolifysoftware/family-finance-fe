@@ -36,6 +36,17 @@ export interface Event {
   date: string;
   budget: number;
   transactions?: Transaction[];
+  rounds?: PaymentRound[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface PaymentRound {
+  id: number;
+  name: string;
+  eventId: number;
+  event?: Event;
+  transactions?: Transaction[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -54,6 +65,8 @@ export interface Transaction {
   branch?: Branch;
   eventId?: number | null;
   event?: Event;
+  paymentRoundId?: number | null;
+  paymentRound?: PaymentRound;
   createdAt?: string;
   updatedAt?: string;
 }

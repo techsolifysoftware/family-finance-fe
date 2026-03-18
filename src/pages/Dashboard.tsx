@@ -40,7 +40,7 @@ interface StatData {
   totalIncome: number;
   totalExpense: number;
   membersCount: number;
-  branches: Record<string, { income: number; expense: number }>;
+  branches: Record<string, { name: string; income: number; expense: number }>;
   monthlyStats: Array<{ month: string; income: number; expense: number }>;
   recentEvents: Array<{
     id: number;
@@ -209,17 +209,10 @@ export default function Dashboard() {
     expense: item.expense,
   }));
 
-  const branchLabels: Record<string, string> = {
-    BRANCH_1: "Chi Trưởng",
-    BRANCH_2: "Chi Thứ",
-    BRANCH_3: "Chi Út",
-    ALL: "Thu chung / Toàn họ",
-  };
   const COLORS = ["#10b981", "#3b82f6", "#8b5cf6", "#64748b"];
-
   const branchData = Object.keys(data.branches)
     .map((key) => ({
-      name: branchLabels[key] || key,
+      name: data.branches[key].name,
       income: data.branches[key].income,
       expense: data.branches[key].expense,
     }))
@@ -373,12 +366,25 @@ export default function Dashboard() {
                       />
                     </div>
                   </div>
-                  <p className="text-[10px] text-muted-foreground flex justify-between">
-                    <span>
-                      Ngân sách: {event.budget?.toLocaleString("vi-VN")} ₫
-                    </span>
+                    <p className="text-[10px] text-muted-foreground flex justify-between items-center">
+                      <span>
+                        Ngân sách: {event.budget?.toLocaleString("vi-VN")} ₫
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-[10px] font-medium hover:bg-primary/10 hover:text-primary"
+                        onClick={() =>
+                          navigate("/transactions", {
+                            state: { eventId: event.id.toString() },
+                          })
+                        }
+                      >
+                        Xem thu chi <ChevronRight className="w-3 h-3 ml-0.5" />
+                      </Button>
+                    </p>
                     {event.actualSpending > event.budget && (
-                      <span className="text-destructive font-medium">
+                      <p className="text-[10px] text-destructive font-medium text-right mt-1">
                         Vượt{" "}
                         {(
                           ((event.actualSpending - event.budget) /
@@ -386,13 +392,12 @@ export default function Dashboard() {
                           100
                         ).toFixed(0)}
                         %
-                      </span>
+                      </p>
                     )}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
         </Card>
       )}
 

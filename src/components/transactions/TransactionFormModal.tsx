@@ -16,7 +16,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Branch, Event, Member } from "@/types";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import type { Event, Member } from "@/types";
+import { format, parseISO } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 
 interface TransactionFormModalProps {
   isOpen: boolean;
@@ -30,6 +39,7 @@ interface TransactionFormModalProps {
     memberId: string;
     branchId: string;
     eventId: string;
+    paymentRoundId: string;
   };
   setFormData: (data: {
     type: string;
@@ -39,10 +49,10 @@ interface TransactionFormModalProps {
     memberId: string;
     branchId: string;
     eventId: string;
+    paymentRoundId: string;
   }) => void;
   editingId: number | null;
   members: Member[];
-  branches: Branch[];
   events: Event[];
 }
 
@@ -54,7 +64,6 @@ export function TransactionFormModal({
   setFormData,
   editingId,
   members,
-  branches,
   events,
 }: TransactionFormModalProps) {
   const formatCurrencyInput = (value: string) => {
@@ -67,6 +76,15 @@ export function TransactionFormModal({
     const formatted = formatCurrencyInput(e.target.value);
     setFormData({ ...formData, amount: formatted });
   };
+
+  const selectedEvent = events.find(
+    (e) => e.id.toString() === formData.eventId,
+  );
+  const showRounds =
+    formData.type === "INCOME" &&
+    selectedEvent &&
+    selectedEvent.rounds &&
+    selectedEvent.rounds.length > 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -81,14 +99,13 @@ export function TransactionFormModal({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4 py-4">
+          {/* ... types and date grid remains same ... */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type">Loại giao dịch</Label>
               <Select
                 value={formData.type}
-                onValueChange={(val) =>
-                  setFormData({ ...formData, type: val })
-                }
+                onValueChange={(val) => setFormData({ ...formData, type: val })}
               >
                 <SelectTrigger id="type">
                   <SelectValue placeholder="Chọn loại" />
@@ -101,14 +118,37 @@ export function TransactionFormModal({
             </div>
             <div className="space-y-2">
               <Label htmlFor="date">Ngày</Label>
-              <Input
-                id="date"
-                type="date"
-                value={formData.date}
-                onChange={(e) =>
-                  setFormData({ ...formData, date: e.target.value })
-                }
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal h-10 border-input bg-background",
+                      !formData.date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                    {formData.date ? (
+                      format(parseISO(formData.date), "dd/MM/yyyy")
+                    ) : (
+                      <span>Chọn ngày</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={formData.date ? parseISO(formData.date) : undefined}
+                    onSelect={(date) =>
+                      setFormData({
+                        ...formData,
+                        date: date ? format(date, "yyyy-MM-dd") : "",
+                      })
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 
@@ -133,75 +173,90 @@ export function TransactionFormModal({
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              required
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="member">Người đóng / Người chi</Label>
-              <Select
-                value={formData.memberId}
-                onValueChange={(val) =>
-                  setFormData({ ...formData, memberId: val })
-                }
-              >
-                <SelectTrigger id="member">
-                  <SelectValue placeholder="Chọn thành viên" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">-- Không chọn --</SelectItem>
-                  {members.map((m) => (
-                    <SelectItem key={m.id} value={m.id.toString()}>
-                      {m.name} ({m.branch?.name})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="branch">Thuộc Chi nhánh</Label>
-              <Select
-                value={formData.branchId}
-                onValueChange={(val) =>
-                  setFormData({ ...formData, branchId: val })
-                }
-              >
-                <SelectTrigger id="branch">
-                  <SelectValue placeholder="Chọn chi nhánh" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">-- Không chọn --</SelectItem>
-                  {branches.map((b) => (
-                    <SelectItem key={b.id} value={b.id.toString()}>
-                      {b.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
           <div className="space-y-2">
-            <Label htmlFor="event">Liên kết Sự kiện / Dự toán</Label>
+            <Label htmlFor="member">
+              {formData.type === "INCOME" ? "Người đóng" : "Người chi"}{" "}
+              <span className="text-destructive">*</span>
+            </Label>
             <Select
-              value={formData.eventId}
+              value={formData.memberId}
               onValueChange={(val) =>
-                setFormData({ ...formData, eventId: val })
+                setFormData({ ...formData, memberId: val })
               }
             >
-              <SelectTrigger id="event">
-                <SelectValue placeholder="Chọn sự kiện để theo dõi tiến độ" />
+              <SelectTrigger id="member" className="w-full">
+                <SelectValue placeholder="Chọn thành viên" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">-- Không liên kết --</SelectItem>
-                {events.map((ev) => (
-                  <SelectItem key={ev.id} value={ev.id.toString()}>
-                    {ev.name}
+                {members.map((m) => (
+                  <SelectItem key={m.id} value={m.id.toString()}>
+                    {m.name} ({m.branch?.name})
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div
+            className={cn(
+              "grid gap-4",
+              showRounds ? "sm:grid-cols-2" : "grid-cols-1",
+            )}
+          >
+            <div className="space-y-2">
+              <Label htmlFor="event">
+                Liên kết Sự kiện / Dự toán <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={formData.eventId}
+                onValueChange={(val) =>
+                  setFormData({
+                    ...formData,
+                    eventId: val,
+                    paymentRoundId: "none",
+                  })
+                }
+              >
+                <SelectTrigger id="event" className="w-full">
+                  <SelectValue placeholder="Chọn sự kiện" />
+                </SelectTrigger>
+                <SelectContent>
+                  {events.map((ev) => (
+                    <SelectItem key={ev.id} value={ev.id.toString()}>
+                      {ev.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {showRounds && (
+              <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                <Label htmlFor="paymentRound">
+                  Đợt đóng (Round) <span className="text-destructive">*</span>
+                </Label>
+                <Select
+                  value={formData.paymentRoundId}
+                  onValueChange={(val) =>
+                    setFormData({ ...formData, paymentRoundId: val })
+                  }
+                >
+                  <SelectTrigger id="paymentRound" className="w-full">
+                    <SelectValue placeholder="Chọn đợt" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedEvent.rounds?.map((round) => (
+                      <SelectItem key={round.id} value={round.id.toString()}>
+                        {round.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           <DialogFooter className="pt-4">

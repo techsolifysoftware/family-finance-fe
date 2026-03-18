@@ -8,7 +8,15 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit2, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Edit2, Trash2, MoreHorizontal, User as UserIcon, ShieldAlert, ShieldCheck, Shield } from "lucide-react";
 import type { User } from "@/types";
 
 interface UserTableProps {
@@ -26,16 +34,26 @@ export function UserTable({
 }: UserTableProps) {
   if (loading) {
     return (
-      <div className="p-8 text-center text-muted-foreground animate-pulse">
-        Đang tải danh sách người dùng...
+      <div className="h-64 flex flex-col items-center justify-center gap-4 py-12">
+        <div className="relative">
+          <div className="w-12 h-12 border-4 border-primary/20 rounded-full animate-pulse" />
+          <div className="absolute inset-0 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+        <p className="text-muted-foreground font-medium animate-pulse">Đang tải danh sách tài khoản...</p>
       </div>
     );
   }
 
   if (users.length === 0) {
     return (
-      <div className="p-12 text-center text-muted-foreground bg-muted/20">
-        Chưa có người dùng nào được tạo.
+      <div className="h-64 flex flex-col items-center justify-center gap-3 py-12 text-center px-4">
+        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-2">
+          <UserIcon className="w-8 h-8 text-muted-foreground/50" />
+        </div>
+        <h3 className="text-lg font-semibold">Chưa có người dùng nào</h3>
+        <p className="text-muted-foreground max-w-xs">
+          Hệ thống hiện chưa có tài khoản nào được tạo.
+        </p>
       </div>
     );
   }
@@ -44,69 +62,129 @@ export function UserTable({
     switch (role) {
       case "ADMIN":
         return (
-          <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-100 border-none">
-            Quản trị viên
+          <Badge className="bg-rose-500/10 text-rose-600 hover:bg-rose-500/15 border-rose-500/20 px-2.5 py-0.5 font-bold text-[10px] uppercase tracking-wider">
+            <ShieldAlert className="w-3 h-3 mr-1.5" /> Quản trị viên
           </Badge>
         );
       case "MANAGER":
         return (
-          <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none">
-            Quản lý
+          <Badge className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/15 border-blue-500/20 px-2.5 py-0.5 font-bold text-[10px] uppercase tracking-wider">
+            <ShieldCheck className="w-3 h-3 mr-1.5" /> Quản lý
           </Badge>
         );
       default:
-        return <Badge variant="secondary">Người xem</Badge>;
+        return (
+          <Badge variant="outline" className="bg-slate-500/5 text-slate-500 border-slate-500/10 px-2.5 py-0.5 font-bold text-[10px] uppercase tracking-wider">
+            <Shield className="w-3 h-3 mr-1.5" /> Người xem
+          </Badge>
+        );
     }
   };
 
+  const ActionMenu = ({ user }: { user: User }) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 p-0 hover:bg-muted focus:ring-1 focus:ring-primary/20 transition-all"
+        >
+          <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider px-2 py-1.5">
+          Tùy chọn
+        </DropdownMenuLabel>
+        <DropdownMenuItem onClick={() => onEdit(user)} className="cursor-pointer">
+          <Edit2 className="w-4 h-4 mr-2" /> Chỉnh sửa
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+          onClick={() => onDelete(user.id)}
+        >
+          <Trash2 className="w-4 h-4 mr-2" /> Xóa tài khoản
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   return (
-    <div className="rounded-md border-none overflow-hidden">
-      <Table>
-        <TableHeader className="bg-muted/50">
-          <TableRow>
-            <TableHead className="font-bold">Họ và tên</TableHead>
-            <TableHead className="font-bold">Tên đăng nhập</TableHead>
-            <TableHead className="font-bold">Quyền hạn</TableHead>
-            <TableHead className="text-right font-bold pr-6">
-              Thao tác
-            </TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow
-              key={user.id}
-              className="hover:bg-muted/30 transition-colors"
-            >
-              <TableCell className="font-medium py-3.5">{user.name}</TableCell>
-              <TableCell className="text-muted-foreground">
-                @{user.username}
-              </TableCell>
-              <TableCell>{getRoleBadge(user.role)}</TableCell>
-              <TableCell className="text-right pr-4">
-                <div className="flex justify-end gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-primary"
-                    onClick={() => onEdit(user)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    onClick={() => onDelete(user.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
+    <div className="relative">
+      {/* Desktop View */}
+      <div className="hidden md:block">
+        <Table>
+          <TableHeader className="bg-muted/50 border-b">
+            <TableRow className="hover:bg-transparent text-center">
+              <TableHead className="pl-6 py-4 font-bold text-foreground">Họ và tên</TableHead>
+              <TableHead className="py-4 font-bold text-foreground">Tên đăng nhập</TableHead>
+              <TableHead className="py-4 font-bold text-foreground text-center">Quyền hạn</TableHead>
+              <TableHead className="w-[80px] pr-6 text-right"></TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow key={user.id} className="group hover:bg-muted/30 transition-colors">
+                <TableCell className="pl-6 py-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary flex items-center justify-center text-sm font-bold shadow-sm ring-1 ring-primary/20 shrink-0">
+                      {user.name.split(" ").pop()?.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-bold text-foreground leading-tight">
+                        {user.name}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground uppercase tracking-tighter mt-0.5">
+                        UID: #{user.id.toString().padStart(3, "0")}
+                      </span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="py-4 font-medium text-primary/80">
+                  @{user.username}
+                </TableCell>
+                <TableCell className="py-4 text-center">
+                  {getRoleBadge(user.role)}
+                </TableCell>
+                <TableCell className="pr-6 py-4 text-right">
+                  <ActionMenu user={user} />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Mobile View */}
+      <div className="md:hidden divide-y divide-border">
+        {users.map((user) => (
+          <div key={user.id} className="p-4 flex items-center justify-between gap-4 hover:bg-muted/20 active:bg-muted/40 transition-colors">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary flex items-center justify-center text-sm font-bold shadow-sm border border-primary/10">
+                {user.name.split(" ").pop()?.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex flex-col min-w-0">
+                <h4 className="font-bold text-foreground truncate leading-snug">
+                  {user.name}
+                </h4>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-primary/70 font-medium truncate">
+                    @{user.username}
+                  </span>
+                  <span className="w-1 h-1 rounded-full bg-border shrink-0" />
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    {user.role}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="shrink-0">
+              <ActionMenu user={user} />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
