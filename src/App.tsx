@@ -22,6 +22,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { cn } from "./lib/utils";
 import Branches from "./pages/Branches";
 import Dashboard from "./pages/Dashboard";
 import Events from "./pages/Events";
@@ -49,16 +50,36 @@ const SidebarItem = ({
     <Link
       to={to}
       onClick={onClick}
-      className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+      className={cn(
+        "group relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ease-out flex-shrink-0",
         isActive
-          ? "bg-primary-50 text-primary-700 font-medium"
-          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-      }`}
+          ? "bg-primary/10 text-primary font-bold shadow-sm shadow-primary/5 active:scale-[0.98]"
+          : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 active:scale-[0.98]",
+      )}
     >
-      <Icon
-        className={`w-5 h-5 ${isActive ? "text-primary-600" : "text-gray-400"}`}
-      />
-      {label}
+      {/* Active Indicator Bar */}
+      {isActive && (
+        <div className="absolute left-0 top-3 bottom-3 w-1 bg-primary rounded-r-full shadow-[2px_0_8px_rgba(var(--primary),0.4)]" />
+      )}
+
+      <div
+        className={cn(
+          "flex items-center justify-center w-8 h-8 rounded-lg transition-colors duration-300",
+          isActive
+            ? "bg-primary text-white"
+            : "bg-slate-100 text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-600",
+        )}
+      >
+        <Icon className="w-4.5 h-4.5" />
+      </div>
+
+      <span className="text-sm tracking-tight">{label}</span>
+
+      {!isActive && (
+        <div className="ml-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+        </div>
+      )}
     </Link>
   );
 };
@@ -86,44 +107,71 @@ const Sidebar = ({
   return (
     <>
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-100 transform transition-transform duration-200 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static`}
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-72 bg-white/80 backdrop-blur-xl border-r border-slate-100 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)] transform transition-all duration-500 ease-in-out md:relative md:translate-x-0 leading-relaxed",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+        )}
       >
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-100">
-          <span className="text-xl font-bold text-primary-600">
-            Quản lý chi tiêu
-          </span>
+        {/* Branding Area */}
+        <div className="flex items-center justify-between h-20 px-8 border-b border-slate-50">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-primary/20 ring-4 ring-primary/5">
+              <Receipt className="w-5.5 h-5.5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-lg font-black tracking-tighter text-slate-900 uppercase">
+                Gia Tộc
+              </span>
+              <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none -mt-0.5">
+                Quản lý chi tiêu
+              </span>
+            </div>
+          </div>
           <button
-            className="md:hidden text-gray-500"
+            className="md:hidden p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all"
             onClick={() => setIsOpen(false)}
           >
             <X className="w-6 h-6" />
           </button>
         </div>
-        <nav className="p-4 space-y-1">
-          {navItems.map((item) => (
-            <SidebarItem
-              key={item.path}
-              to={item.path}
-              icon={item.icon}
-              label={item.label}
-              onClick={() => setIsOpen(false)}
-            />
-          ))}
-          {isAuthenticated && (
-            <div className="pt-4 mt-4 border-t border-gray-100">
+
+        {/* Navigation Section */}
+        <div className="flex-1 overflow-y-auto px-4 py-8 space-y-8 scrollbar-hide">
+          <div className="space-y-1.5">
+            <span className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">
+              Menu chính
+            </span>
+            {navItems.map((item) => (
               <SidebarItem
-                to="/settings"
-                icon={SettingsIcon}
-                label="Cài đặt"
+                key={item.path}
+                to={item.path}
+                icon={item.icon}
+                label={item.label}
                 onClick={() => setIsOpen(false)}
               />
+            ))}
+          </div>
+
+          {isAdmin && (
+            <div className="space-y-1.5">
+              <span className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">
+                Hệ thống
+              </span>
+              {isAuthenticated && (
+                <SidebarItem
+                  to="/settings"
+                  icon={SettingsIcon}
+                  label="Cài đặt hệ thống"
+                  onClick={() => setIsOpen(false)}
+                />
+              )}
             </div>
           )}
-        </nav>
+        </div>
       </div>
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-slate-900/10 backdrop-blur-sm md:hidden transition-opacity duration-500"
           onClick={() => setIsOpen(false)}
         />
       )}

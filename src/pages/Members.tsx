@@ -130,15 +130,15 @@ export default function Members() {
 
   return (
     <div className="space-y-6 lg:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 px-0 sm:px-0">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 px-4 sm:px-0">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider mb-2">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 px-6 sm:px-0">
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
             Hội viên dòng họ
           </div>
-          <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
+          <h1 className="text-4xl lg:text-5xl font-black tracking-tighter text-foreground uppercase leading-none">
             Danh sách Thành viên
           </h1>
-          <p className="text-muted-foreground text-sm lg:text-base max-w-lg">
+          <p className="text-muted-foreground text-sm lg:text-lg max-w-xl font-bold opacity-60 leading-relaxed">
             Quản lý thông tin định danh các thành viên và phân loại theo chi
             nhánh trực thuộc trong dòng tộc.
           </p>
@@ -146,15 +146,15 @@ export default function Members() {
         {canManageMembers && (
           <Button
             onClick={() => setShowModal(true)}
-            className="w-full sm:w-auto shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5 active:translate-y-0 h-11 px-6 rounded-xl font-bold"
+            className="w-full md:w-auto shadow-2xl shadow-primary/30 hover:shadow-primary/40 transition-all hover:-translate-y-1 active:translate-y-0 h-14 px-8 rounded-2xl font-black text-sm uppercase tracking-widest bg-primary text-primary-foreground"
           >
-            <Plus className="w-5 h-5 mr-2" /> Thêm thành viên
+            <Plus className="w-5 h-5 mr-3" /> Thêm thành viên
           </Button>
         )}
       </div>
 
-      <div className="grid gap-4 px-4 sm:px-0">
-        <Card className="border-none shadow-xl shadow-foreground/5 bg-card/50 backdrop-blur-sm overflow-hidden rounded-2xl ring-1 ring-border/50">
+      <div className="grid gap-6 px-6 sm:px-0">
+        <Card className="border-none shadow-xl shadow-foreground/5 bg-card/50 backdrop-blur-sm overflow-hidden rounded-[2.5rem]">
           <CardHeader className="p-4 sm:p-6 pb-2 sm:pb-4 border-b border-border/40">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div className="relative flex-1">

@@ -15,6 +15,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 import {
   AlertCircle,
   Calendar,
@@ -54,25 +55,33 @@ export function EventCard({
   const isOverBudget = totalExpense > event.budget;
 
   return (
-    <Card className="group relative overflow-hidden border-border/40 bg-card/50 backdrop-blur-sm hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500 rounded-[2rem] border-none shadow-xl shadow-foreground/5 h-full flex flex-col">
-      {/* Top Status Indicator */}
+    <Card className="group relative overflow-hidden border border-border/5 bg-card hover:bg-card/90 transition-all duration-500 rounded-[2.5rem] shadow-xl shadow-foreground/[0.05] hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-2 h-full flex flex-col ring-1 ring-border/5">
+      {/* Top Status Indicator - Vibrancy */}
       <div
         className={cn(
-          "absolute top-0 left-0 right-0 h-1.5 transition-colors duration-500 z-10",
-          isOverBudget ? "bg-rose-500" : progress > 80 ? "bg-amber-500" : "bg-primary"
+          "absolute top-0 left-0 right-0 h-1.5 transition-all duration-500 z-10",
+          isOverBudget ? "bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.4)]" : progress > 80 ? "bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.4)]" : "bg-primary shadow-[0_0_15px_rgba(var(--primary),0.4)]"
         )}
       />
 
-      <CardHeader className="pb-4 pt-8 px-5 sm:px-6">
-        <div className="flex justify-between items-start gap-3 sm:gap-4">
-          <div className="space-y-2 flex-1 min-w-0">
-            <CardTitle className="text-xl sm:text-2xl font-black tracking-tight text-foreground line-clamp-2 leading-tight break-words">
+      <CardHeader className="pb-4 pt-8 px-6 sm:px-8">
+        <div className="flex justify-between items-start gap-4">
+          <div className="space-y-3 flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <div className={cn(
+                "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border transition-colors",
+                isOverBudget ? "bg-rose-500/10 text-rose-500 border-rose-500/20" : "bg-primary/10 text-primary border-primary/20"
+              )}>
+                {isOverBudget ? "Vượt dự toán" : "Trong tầm soát"}
+              </div>
+            </div>
+            <CardTitle className="text-xl sm:text-2xl font-black tracking-tight text-foreground line-clamp-1 break-words">
               {event.name}
             </CardTitle>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-muted/50 text-[9px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-widest border border-border/30 whitespace-nowrap">
-                <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3 opacity-70" />
-                {format(new Date(event.date), "dd/MM/yyyy")}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-muted/40 text-[10px] font-bold text-muted-foreground border border-border/10 whitespace-nowrap shadow-sm">
+                <Calendar className="w-3 h-3 opacity-60 text-primary" />
+                {format(new Date(event.date), "dd/MM/yyyy", { locale: vi })}
               </div>
             </div>
           </div>
@@ -108,7 +117,7 @@ export function EventCard({
                 "w-2 h-2 rounded-full animate-pulse shrink-0",
                 isOverBudget ? "bg-rose-500" : "bg-emerald-500"
               )} />
-              <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-muted-foreground truncate">Tiến độ chi tiêu</span>
+              <span className="text-[12px] font-bold text-muted-foreground">Tiến độ chi tiêu</span>
             </div>
             <span
               className={cn(
@@ -132,41 +141,41 @@ export function EventCard({
         </div>
 
         {/* Data Grid with Icons - Made responsive (stacks on small widths) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-          <div className="relative p-3.5 sm:p-4 rounded-2xl bg-muted/20 border border-border/30 overflow-hidden group/item hover:bg-muted/30 transition-colors">
-            <Target className="absolute -right-2 -bottom-2 w-10 sm:w-12 h-10 sm:h-12 text-muted-foreground/5 transition-transform group-hover/item:scale-110" />
-            <p className="text-[9px] sm:text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 mb-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="relative p-4 rounded-3xl bg-muted/10 border border-border/5 overflow-hidden group/item hover:bg-muted/15 transition-all duration-300">
+            <Target className="absolute -right-2 -bottom-2 w-10 h-10 text-primary/5 transition-transform group-hover/item:scale-110 duration-500" />
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1.5 opacity-50">
               Dự toán
             </p>
-            <div className="flex items-baseline gap-1 flex-wrap min-w-0">
-              <span className="font-black text-lg sm:text-xl tracking-tight tabular-nums break-all leading-none">
+            <div className="flex items-baseline gap-1 min-w-0">
+              <span className="font-black text-xl tracking-tighter tabular-nums truncate">
                 {event.budget.toLocaleString("vi-VN")}
               </span>
-              <span className="text-[9px] sm:text-[10px] font-bold opacity-60 shrink-0">đ</span>
+              <span className="text-[10px] font-black opacity-30">đ</span>
             </div>
           </div>
           
           <div className={cn(
-            "relative p-3.5 sm:p-4 rounded-2xl border overflow-hidden group/item transition-all",
+            "relative p-4 rounded-3xl border border-transparent overflow-hidden group/item transition-all duration-300",
             isOverBudget 
-              ? "bg-rose-500/5 border-rose-500/20" 
-              : "bg-emerald-500/5 border-emerald-500/20"
+              ? "bg-rose-500/[0.03] border-rose-500/10" 
+              : "bg-emerald-500/[0.03] border-emerald-500/10"
           )}>
             <TrendingUp className={cn(
-              "absolute -right-2 -bottom-2 w-10 sm:w-12 h-10 sm:h-12 transition-transform group-hover/item:scale-110",
-              isOverBudget ? "text-rose-500/5" : "text-emerald-500/5"
+              "absolute -right-2 -bottom-2 w-10 h-10 transition-transform group-hover/item:scale-110 duration-500",
+              isOverBudget ? "text-rose-500/10" : "text-emerald-500/10"
             )} />
-            <p className="text-[9px] sm:text-[10px] uppercase font-black tracking-[0.2em] text-muted-foreground/60 mb-1">
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1.5 opacity-50">
               Thực chi
             </p>
-            <div className="flex items-baseline gap-1 flex-wrap min-w-0">
+            <div className="flex items-baseline gap-1 min-w-0">
               <span className={cn(
-                "font-black text-lg sm:text-xl tracking-tight font-mono tabular-nums break-all leading-none",
+                "font-black text-xl tracking-tighter tabular-nums truncate",
                 isOverBudget ? "text-rose-600" : "text-emerald-600"
               )}>
                 {totalExpense.toLocaleString("vi-VN")}
               </span>
-              <span className="text-[9px] sm:text-[10px] font-bold opacity-60 shrink-0">đ</span>
+              <span className="text-[10px] font-black opacity-30">đ</span>
             </div>
           </div>
         </div>
@@ -182,33 +191,33 @@ export function EventCard({
         )}
       </CardContent>
 
-      <CardFooter className="pt-2 pb-6 sm:pb-8 px-5 sm:px-6 flex flex-col gap-3">
+      <CardFooter className="pt-2 pb-8 px-6 sm:px-8 flex flex-col gap-3">
         <Button
           variant="outline"
-          className="w-full justify-between h-11 sm:h-12 px-4 sm:px-5 border-border/40 rounded-2xl group/btn hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 shadow-sm"
+          className="w-full justify-between h-12 px-5 border-border/20 bg-background/40 rounded-2xl group/btn hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 shadow-sm"
           onClick={() => onViewStatus(event)}
         >
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover/btn:scale-110 transition-transform shadow-inner shrink-0">
-              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary group-hover/btn:scale-110 transition-all duration-300 shadow-inner shrink-0">
+              <CheckCircle2 className="w-4 h-4" />
             </div>
-            <span className="text-[11px] sm:text-sm font-black uppercase tracking-widest text-foreground/80 group-hover/btn:text-primary transition-colors truncate">Tình trạng đóng góp</span>
+            <span className="text-[11px] font-black uppercase tracking-widest text-foreground/80 group-hover:text-primary transition-colors truncate">Tình trạng đóng góp</span>
           </div>
-          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 opacity-30 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all shrink-0" />
+          <ChevronRight className="w-4 h-4 opacity-20 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0" />
         </Button>
 
         <Button
           variant="ghost"
-          className="w-full justify-between h-11 sm:h-12 px-4 sm:px-5 hover:bg-muted/50 rounded-2xl group/tx transition-all"
+          className="w-full justify-between h-12 px-5 hover:bg-muted/30 rounded-2xl group/tx transition-all duration-300"
           onClick={() => onViewTransactions(event)}
         >
-          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-muted/60 flex items-center justify-center text-muted-foreground group-hover/tx:bg-background group-hover/tx:text-foreground transition-all shadow-inner shrink-0">
-              <Receipt className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="w-8 h-8 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground group-hover/tx:bg-white/80 group-hover/tx:text-foreground transition-all shadow-inner shrink-0">
+              <Receipt className="w-4 h-4" />
             </div>
-            <span className="text-[11px] sm:text-sm font-bold text-muted-foreground group-hover/tx:text-foreground transition-colors truncate">Xem chi tiết giao dịch</span>
+            <span className="text-[11px] font-bold text-muted-foreground/80 group-hover/tx:text-foreground transition-colors truncate">Xem chi tiết giao dịch</span>
           </div>
-          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 opacity-20 group-hover/tx:opacity-60 group-hover/tx:translate-x-1 transition-all shrink-0" />
+          <ChevronRight className="w-4 h-4 opacity-10 group-hover:opacity-40 group-hover:translate-x-1 transition-all shrink-0" />
         </Button>
       </CardFooter>
     </Card>

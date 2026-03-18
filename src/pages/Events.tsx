@@ -6,7 +6,7 @@ import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import type { Event } from "@/types";
 import { format } from "date-fns";
 import { Plus, Target } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api";
@@ -20,6 +20,11 @@ export default function Events() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [statusModalEvent, setStatusModalEvent] = useState<Event | null>(null);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    lastPage: 1,
+  });
 
   const [formData, setFormData] = useState({
     name: "",
@@ -28,22 +33,25 @@ export default function Events() {
   });
   const [rounds, setRounds] = useState<{ name: string; id?: number }[]>([]);
 
-  const fetchEvents = async () => {
+  const [page, setPage] = useState(1);
+
+  const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get("/events");
-      setEvents(response.data);
+      const response = await api.get("/events", { params: { page, limit: 12 } });
+      setEvents(response.data.data);
+      setPagination(response.data.meta);
     } catch (err) {
       console.error(err);
       toast.error("Không thể tải danh sách sự kiện");
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
 
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [fetchEvents]);
 
   const closeModal = () => {
     setShowModal(false);
@@ -152,10 +160,10 @@ export default function Events() {
             <Target className="w-3 h-3" />
             Quản lý mục tiêu
           </div>
-          <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-none">
+          <h1 className="text-4xl lg:text-5xl font-black tracking-tighter text-foreground uppercase leading-none">
             Sự kiện & Dự toán
           </h1>
-          <p className="text-muted-foreground text-sm lg:text-lg max-w-xl font-medium leading-relaxed">
+          <p className="text-muted-foreground text-sm lg:text-lg max-w-xl font-bold opacity-60 leading-relaxed">
             Lập kế hoạch tài chính thông minh, theo dõi chi tiết các đợt đóng góp và tối ưu hóa ngân sách cho mọi hoạt động của dòng họ.
           </p>
         </div>
@@ -173,7 +181,7 @@ export default function Events() {
         {loading && events.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 gap-6 bg-card/30 backdrop-blur-sm rounded-[3rem] border border-dashed border-border/40">
             <div className="relative group">
-              <div className="w-20 h-20 border-8 border-primary/10 rounded-[2rem] animate-pulse group-hover:scale-110 transition-transform duration-500" />
+              <div className="w-20 h-20 border-8 border-primary/20 rounded-[2rem] animate-pulse group-hover:scale-110 transition-transform duration-500" />
               <div className="absolute inset-0 w-20 h-20 border-8 border-primary border-t-transparent rounded-[2rem] animate-spin" />
             </div>
             <p className="text-muted-foreground font-black uppercase tracking-[0.3em] text-xs animate-pulse">
@@ -181,42 +189,74 @@ export default function Events() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-            {events.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                canManage={canManageTransactions}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onViewStatus={setStatusModalEvent}
-                onViewTransactions={(e) => navigate("/transactions", { state: { eventId: e.id.toString() } })}
-              />
-            ))}
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+              {events.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  canManage={canManageTransactions}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onViewStatus={setStatusModalEvent}
+                  onViewTransactions={(e) => navigate("/transactions", { state: { eventId: e.id.toString() } })}
+                />
+              ))}
 
-            {events.length === 0 && !loading && (
-              <Card className="col-span-full border-none shadow-2xl shadow-foreground/5 bg-card/50 backdrop-blur-xl rounded-[3rem] py-24 flex flex-col items-center justify-center text-center overflow-hidden relative">
-                <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.02] to-transparent pointer-events-none" />
-                <div className="relative p-8 bg-primary/10 rounded-[2.5rem] mb-8 text-primary shadow-inner scale-125">
-                  <Target className="w-10 h-10" />
-                </div>
-                <CardTitle className="text-3xl font-black tracking-tight mb-4">
-                  Chưa có sự kiện nào
-                </CardTitle>
-                <CardDescription className="max-w-[400px] text-lg font-medium leading-relaxed opacity-70">
-                  Hãy bắt đầu hành trình quản lý tài chính dòng họ bằng cách thiết lập sự kiện đầu tiên ngay hôm nay.
-                </CardDescription>
-                {canManageTransactions && (
+              {events.length === 0 && !loading && (
+                <Card className="col-span-full border-none shadow-2xl shadow-foreground/5 bg-card/50 backdrop-blur-xl rounded-[3rem] py-24 flex flex-col items-center justify-center text-center overflow-hidden relative">
+                  <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.02] to-transparent pointer-events-none" />
+                  <div className="relative p-8 bg-primary/10 rounded-[2.5rem] mb-8 text-primary shadow-inner scale-125">
+                    <Target className="w-10 h-10" />
+                  </div>
+                  <CardTitle className="text-3xl font-black tracking-tight mb-4">
+                    Chưa có sự kiện nào
+                  </CardTitle>
+                  <CardDescription className="max-w-[400px] text-lg font-medium leading-relaxed opacity-70">
+                    Hãy bắt đầu hành trình quản lý tài chính dòng họ bằng cách thiết lập sự kiện đầu tiên ngay hôm nay.
+                  </CardDescription>
+                  {canManageTransactions && (
+                    <Button
+                      onClick={() => setShowModal(true)}
+                      className="mt-12 h-14 px-10 rounded-2xl font-black uppercase tracking-widest shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all bg-primary text-primary-foreground"
+                    >
+                      <Plus className="w-6 h-6 mr-3" /> Thiết lập ngay
+                    </Button>
+                  )}
+                </Card>
+              )}
+            </div>
+
+            {pagination.lastPage > 1 && (
+              <div className="mt-12 flex justify-center">
+                <div className="flex items-center gap-2 bg-card/50 backdrop-blur-sm p-2 rounded-2xl border border-border/40">
                   <Button
-                    onClick={() => setShowModal(true)}
-                    className="mt-12 h-14 px-10 rounded-2xl font-black uppercase tracking-widest shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all bg-primary text-primary-foreground"
+                    variant="ghost"
+                    size="sm"
+                    disabled={page === 1}
+                    onClick={() => setPage(page - 1)}
+                    className="rounded-xl h-10 px-4 font-bold disabled:opacity-30"
                   >
-                    <Plus className="w-6 h-6 mr-3" /> Thiết lập ngay
+                    Trước
                   </Button>
-                )}
-              </Card>
+                  <div className="px-4 flex items-center gap-2">
+                    <span className="text-sm font-black text-primary">{page}</span>
+                    <span className="text-sm text-muted-foreground font-bold">/</span>
+                    <span className="text-sm text-muted-foreground font-bold">{pagination.lastPage}</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={page === pagination.lastPage}
+                    onClick={() => setPage(page + 1)}
+                    className="rounded-xl h-10 px-4 font-bold disabled:opacity-30"
+                  >
+                    Sau
+                  </Button>
+                </div>
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
 

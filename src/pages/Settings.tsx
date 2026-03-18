@@ -105,7 +105,7 @@ export default function Settings() {
       const workbook = XLSX.utils.book_new();
 
       // Sheet Sổ Quỹ (Transactions)
-      const txData = txRes.data.map((tx: Transaction) => ({
+      const txData = txRes.data.data.map((tx: Transaction) => ({
         "ID Giao Dịch": tx.id,
         Loại: tx.type === "INCOME" ? "Thu" : "Chi",
         "Nội Dung": tx.description,
@@ -120,7 +120,7 @@ export default function Settings() {
       XLSX.utils.book_append_sheet(workbook, txSheet, "ThuChi");
 
       // Sheet Thành Viên
-      const mdData = membersRes.data.map((m: Member) => ({
+      const mdData = membersRes.data.data.map((m: Member) => ({
         "Mã TV": m.id,
         "Họ & Tên": m.name,
         "Thuộc Chi": m.branch?.name || "Chung",
@@ -129,7 +129,7 @@ export default function Settings() {
       XLSX.utils.book_append_sheet(workbook, mSheet, "ThanhVien");
 
       // Sheet Sự Kiện
-      const evData = eventsRes.data.map((ev: Event) => ({
+      const evData = eventsRes.data.data.map((ev: Event) => ({
         "Mã SK": ev.id,
         "Tên Sự Kiện": ev.name,
         Ngày: format(new Date(ev.date), "dd/MM/yyyy"),
@@ -174,16 +174,21 @@ export default function Settings() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 max-w-4xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Cài đặt</h1>
-        <p className="text-gray-500 mt-1">
-          Quản lý tài khoản và dữ liệu hệ thống
+      <div className="space-y-3 px-6 sm:px-0">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-500/10 text-slate-600 border border-slate-500/20 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
+          Hệ thống & Tài khoản
+        </div>
+        <h1 className="text-4xl lg:text-5xl font-black tracking-tighter text-foreground uppercase leading-none">
+          Cài đặt
+        </h1>
+        <p className="text-muted-foreground text-sm lg:text-lg max-w-xl font-bold opacity-60 leading-relaxed">
+          Quản lý tài khoản cá nhân, bảo mật và các thiết lập sao lưu dữ liệu toàn hệ thống.
         </p>
       </div>
 
       <div className="space-y-6">
         {/* User Profile */}
-        <section className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden border-primary-100">
+        <section className="bg-white rounded-[2.5rem] border-none shadow-xl shadow-foreground/5 overflow-hidden ring-1 ring-border/50">
           <div className="p-6 flex items-center gap-6">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-primary-500/20">
               {user?.name?.[0].toUpperCase()}
@@ -193,7 +198,7 @@ export default function Settings() {
                 <h3 className="text-xl font-bold text-gray-900">
                   {user?.name}
                 </h3>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-primary-50 text-primary-700 uppercase tracking-wider">
+                <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-primary-50 text-primary-700 border border-primary-100">
                   {user?.role}
                 </span>
               </div>
@@ -223,7 +228,7 @@ export default function Settings() {
         </section>
 
         {/* Account Security */}
-        <section className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <section className="bg-white rounded-[2.5rem] border-none shadow-xl shadow-foreground/5 overflow-hidden ring-1 ring-border/50">
           <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
             <h3 className="font-semibold text-gray-800 flex items-center gap-2">
               <Shield className="w-4 h-4 text-primary-500" />
@@ -242,7 +247,7 @@ export default function Settings() {
 
         {/* Data Management */}
         {isAdmin && (
-          <section className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <section className="bg-white rounded-[2.5rem] border-none shadow-xl shadow-foreground/5 overflow-hidden ring-1 ring-border/50">
             <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
               <h3 className="font-semibold text-gray-800 flex items-center gap-2">
                 Quản lý Dữ liệu Hệ thống (Admin)
@@ -275,7 +280,7 @@ export default function Settings() {
         )}
 
         {/* Application Info */}
-        <section className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <section className="bg-white rounded-[2.5rem] border-none shadow-xl shadow-foreground/5 overflow-hidden ring-1 ring-border/50">
           <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
             <h3 className="font-semibold text-gray-800 flex items-center gap-2">
               <Globe className="w-4 h-4 text-emerald-500" />

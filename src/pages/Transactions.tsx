@@ -76,7 +76,7 @@ export default function Transactions() {
       setTransactions(txRes.data.data);
       setPagination(txRes.data.meta);
       setMembers(memRes.data.data);
-      setEvents(evRes.data);
+      setEvents(evRes.data.data);
       setBranches(brRes.data);
     } catch (err) {
       console.error(err);
@@ -221,26 +221,35 @@ export default function Transactions() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 px-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Sổ thu chi</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-4xl lg:text-5xl font-black tracking-tighter text-foreground uppercase leading-none">
+            Sổ thu chi
+          </h1>
+          <p className="text-sm font-bold text-muted-foreground/60 mt-1">
             Quản lý dòng tiền và các đóng góp của thành viên.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={exportToExcel}>
-            <Download className="w-4 h-4 mr-2" /> Xuất Excel
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            onClick={exportToExcel}
+            className="h-12 px-6 rounded-2xl bg-background/50 backdrop-blur-sm border-border/40 font-bold hover:bg-muted/50 transition-all shadow-sm"
+          >
+            <Download className="w-5 h-5 mr-2 opacity-70" /> Xuất Excel
           </Button>
           {canManageTransactions && (
-            <Button onClick={() => setShowModal(true)} className="shadow-sm">
-              <Plus className="w-4 h-4 mr-2" /> Thêm giao dịch
+            <Button
+              onClick={() => setShowModal(true)}
+              className="h-12 px-8 rounded-2xl font-black tracking-tight shadow-lg shadow-primary/20 transition-all active:scale-95 flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" /> Thêm giao dịch
             </Button>
           )}
         </div>
       </div>
 
-      <Card className="border-border/50 shadow-sm overflow-hidden">
+      <Card className="border-none shadow-xl shadow-foreground/5 bg-card/50 backdrop-blur-sm rounded-[2.5rem] overflow-hidden">
         <TransactionFilters
           search={filters.search}
           onSearchChange={(val) => setFilters({ ...filters, search: val, page: 1 })}

@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 import type { LucideIcon } from "lucide-react";
 import {
   Calendar,
@@ -97,8 +98,8 @@ const StatCard = ({
           </div>
         )}
       </div>
-      <div className="mt-6 space-y-1">
-        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">{title}</p>
+      <div className="mt-6 space-y-1.5">
+        <p className="text-sm font-bold text-muted-foreground tracking-tight">{title}</p>
         <h3 className="text-[28px] font-black tracking-tighter text-foreground leading-none tabular-nums">
           {amount.toLocaleString("vi-VN")}{" "}
           <span className="text-sm font-bold text-muted-foreground/40 uppercase tracking-widest ml-1">đ</span>
@@ -135,8 +136,8 @@ const CustomTooltip = ({
                   className="w-2 h-2 rounded-full shadow-sm"
                   style={{ backgroundColor: entry.color }}
                 />
-                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-tight">
-                  {entry.name === "income" ? "THU" : "CHI"}:
+                <span className="text-xs font-bold text-muted-foreground tracking-tight">
+                  {entry.name === "income" ? "Thu" : "Chi"}:
                 </span>
               </div>
               <span className="text-xs font-black tabular-nums" style={{ color: entry.color }}>
@@ -236,12 +237,15 @@ export default function Dashboard() {
         loading ? "opacity-50 pointer-events-none" : "",
       )}
     >
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-border/40">
-        <div className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter text-foreground leading-none">
-            Dashboard
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 px-6 sm:px-0 pb-4">
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
+            Dữ liệu trực quan
+          </div>
+          <h1 className="text-4xl lg:text-5xl font-black tracking-tighter text-foreground uppercase leading-none">
+            Tổng quan
           </h1>
-          <p className="text-[13px] font-medium text-muted-foreground/80 max-w-md">
+          <p className="text-muted-foreground text-sm lg:text-lg max-w-xl font-bold opacity-60 leading-relaxed">
             Hệ thống quản lý tài chính dòng họ thông minh & minh bạch.
           </p>
         </div>
@@ -339,9 +343,9 @@ export default function Dashboard() {
                         <h3 className="font-black text-sm tracking-tight text-foreground line-clamp-1 group-hover/item:text-primary transition-colors">
                           {event.name}
                         </h3>
-                        <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
-                          <Calendar className="w-2.5 h-2.5" />
-                          {format(new Date(event.date || Date.now()), "dd/MM")}
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
+                          <Calendar className="w-3 h-3" />
+                          {format(new Date(event.date || Date.now()), "dd/MM", { locale: vi })}
                         </div>
                       </div>
                       <span
@@ -368,14 +372,14 @@ export default function Dashboard() {
                       </div>
                       <div className="flex flex-col gap-1">
                          <div className="flex justify-between items-center text-[10px] font-bold">
-                          <span className="text-muted-foreground/60">THỰC CHI</span>
-                          <span className={cn("tabular-nums decoration-2", isOverBudget ? "text-rose-600" : "text-foreground")}>
+                          <span className="text-muted-foreground font-semibold">THỰC CHI</span>
+                          <span className={cn("tabular-nums decoration-2 font-bold", isOverBudget ? "text-rose-600" : "text-foreground")}>
                             {event.actualSpending?.toLocaleString("vi-VN")} đ
                           </span>
                         </div>
                         <div className="flex justify-between items-center text-[10px] font-bold">
-                          <span className="text-muted-foreground/60">DỰ TOÁN</span>
-                          <span className="text-muted-foreground tabular-nums">
+                          <span className="text-muted-foreground font-semibold">DỰ TOÁN</span>
+                          <span className="text-muted-foreground tabular-nums font-bold">
                             {event.budget?.toLocaleString("vi-VN")} đ
                           </span>
                         </div>
@@ -406,7 +410,7 @@ export default function Dashboard() {
         <Card className="border-none shadow-xl shadow-foreground/5 bg-card/50 backdrop-blur-sm rounded-[2.5rem] overflow-hidden">
           <CardHeader className="pb-4 pt-10 px-8">
             <CardTitle className="text-xl font-black tracking-tighter uppercase whitespace-nowrap">Biến động thu chi</CardTitle>
-            <CardDescription className="text-xs font-semibold text-muted-foreground/60">
+            <CardDescription className="text-xs font-bold text-muted-foreground">
               Dữ liệu tài chính theo từng tháng.
             </CardDescription>
           </CardHeader>
@@ -491,7 +495,7 @@ export default function Dashboard() {
         <Card className="border-none shadow-xl shadow-foreground/5 bg-card/50 backdrop-blur-sm rounded-[2.5rem] overflow-hidden">
           <CardHeader className="pb-4 pt-10 px-8">
             <CardTitle className="text-xl font-black tracking-tighter uppercase whitespace-nowrap">Đóng góp & Chi nhánh</CardTitle>
-            <CardDescription className="text-xs font-semibold text-muted-foreground/60">
+            <CardDescription className="text-xs font-bold text-muted-foreground">
               So sánh ngân sách giữa các đơn vị.
             </CardDescription>
           </CardHeader>
@@ -594,7 +598,7 @@ export default function Dashboard() {
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Tổng thu</span>
+                <span className="text-[11px] font-bold text-muted-foreground">Tổng thu</span>
                 <span className="text-xl font-black tracking-tighter tabular-nums">
                   {data.totalIncome.toLocaleString("vi-VN")}
                 </span>
@@ -662,9 +666,9 @@ export default function Dashboard() {
                         <p className="text-sm font-black tracking-tight text-foreground group-hover/tx:text-primary transition-colors">
                           {tx.description}
                         </p>
-                        <div className="flex items-center gap-2.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">
+                        <div className="flex items-center gap-2.5 text-xs font-bold text-muted-foreground/70">
                           <span>
-                            {format(new Date(tx.date), "dd MMMM, yyyy")}
+                            {format(new Date(tx.date), "dd MMMM, yyyy", { locale: vi })}
                           </span>
                           {tx.member && (
                             <>
@@ -689,7 +693,7 @@ export default function Dashboard() {
                         {tx.type === "EXPENSE" ? "-" : "+"}
                         {tx.amount.toLocaleString("vi-VN")}
                       </span>
-                      <p className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-widest">VNĐ</p>
+                      <p className="text-[11px] font-black text-muted-foreground/40 leading-none">VNĐ</p>
                     </div>
                   </div>
                 ))

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { vi } from "date-fns/locale";
 import {
   ArrowDownCircle,
   ArrowUpCircle,
@@ -142,10 +143,10 @@ export function TransactionTable({
                 <TableCell className="pl-6 py-4">
                   <div className="flex flex-col">
                     <span className="text-sm font-bold text-foreground">
-                      {format(new Date(tx.date), "dd/MM")}
+                      {format(new Date(tx.date), "dd/MM", { locale: vi })}
                     </span>
-                    <span className="text-[10px] text-muted-foreground uppercase font-medium">
-                      {format(new Date(tx.date), "yyyy")}
+                    <span className="text-[11px] text-muted-foreground font-bold tracking-tight mt-0.5">
+                      Tháng {format(new Date(tx.date), "MM")}
                     </span>
                   </div>
                 </TableCell>
@@ -250,12 +251,14 @@ export function TransactionTable({
             <div className="flex items-start justify-between gap-4">
               <div className="flex gap-4">
                 {/* Date Square */}
-                <div className="w-12 h-12 shrink-0 rounded-xl bg-muted/30 border border-border/50 flex flex-col items-center justify-center shadow-inner">
-                  <span className="text-sm font-black leading-none text-foreground">
+                <div className="w-14 h-14 shrink-0 rounded-xl bg-muted/30 border border-border/50 flex flex-col items-center justify-center shadow-inner">
+                  <span className="text-base font-black leading-none text-foreground">
                     {format(new Date(tx.date), "dd")}
                   </span>
-                  <span className="text-[10px] text-muted-foreground uppercase font-black tracking-tighter mt-1">
-                    THG {format(new Date(tx.date), "MM")}
+                  <span className="text-[10px] text-muted-foreground font-bold mt-1 text-center leading-tight">
+                    Tháng {format(new Date(tx.date), "MM")}
+                    <br />
+                    {format(new Date(tx.date), "yyyy")}
                   </span>
                 </div>
 
@@ -276,7 +279,7 @@ export function TransactionTable({
                     {tx.event && (
                       <Badge
                         variant="secondary"
-                        className="text-[9px] px-2 py-0 h-4.5 font-bold uppercase tracking-tight bg-primary/10 text-primary border-primary/20 hover:bg-primary/10"
+                        className="text-[10px] px-2 py-0 h-5 font-bold bg-primary/10 text-primary border-primary/20 hover:bg-primary/10"
                       >
                         {tx.event.name}
                       </Badge>
