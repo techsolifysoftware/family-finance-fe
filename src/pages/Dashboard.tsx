@@ -579,7 +579,10 @@ export default function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(val: number | string | undefined) => [`${Number(val || 0).toLocaleString("vi-VN")} đ`, "Đóng góp"]}
+                    formatter={(val: number | string | readonly (number | string)[] | undefined) => [
+                      `${Number(Array.isArray(val) ? val[0] : (val || 0)).toLocaleString("vi-VN")} đ`,
+                      "Đóng góp",
+                    ]}
                     contentStyle={{
                       borderRadius: "16px",
                       border: "none",
