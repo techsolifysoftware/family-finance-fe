@@ -5,7 +5,7 @@ import type { User } from "@/types";
 
 interface AuthContextType {
   user: User | null;
-  login: (token: string, userData: User) => void;
+  login: (token: string, refreshToken: string, userData: User) => void;
   logout: () => void;
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -26,8 +26,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     })(),
   );
 
-  const login = (token: string, userData: User) => {
+  const login = (token: string, refreshToken: string, userData: User) => {
     localStorage.setItem("token", token);
+    localStorage.setItem("refreshToken", refreshToken);
     localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -35,6 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
     setUser(null);
     delete api.defaults.headers.common["Authorization"];

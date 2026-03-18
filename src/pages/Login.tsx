@@ -30,7 +30,7 @@ export default function Login() {
     setError("");
     try {
       const { data } = await api.post("/auth/login", { username, password });
-      login(data.access_token, data.user);
+      login(data.access_token, data.refresh_token, data.user);
       navigate("/");
     } catch (err: unknown) {
       let message = "Đăng nhập thất bại. Kiểm tra lại thông tin.";
