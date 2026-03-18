@@ -35,7 +35,7 @@ export function TransactionFilters({
   paymentRoundId,
   onRoundChange,
 }: TransactionFiltersProps) {
-  const selectedEvent = events.find((e) => e.id.toString() === eventId);
+  const selectedEvent = (events || []).find((e) => e.id.toString() === eventId);
   const rounds = selectedEvent?.rounds || [];
   return (
     <CardHeader className="pb-4">
@@ -57,7 +57,7 @@ export function TransactionFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">Tất cả chi nhánh</SelectItem>
-              {branches.map((b) => (
+              {(branches || []).map((b) => (
                 <SelectItem key={b.id} value={b.id.toString()}>
                   {b.name}
                 </SelectItem>
@@ -72,7 +72,7 @@ export function TransactionFilters({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">Tất cả sự kiện</SelectItem>
-              {events.map((ev) => (
+              {(events || []).map((ev) => (
                 <SelectItem key={ev.id} value={ev.id.toString()}>
                   {ev.name}
                 </SelectItem>

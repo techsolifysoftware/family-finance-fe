@@ -38,8 +38,10 @@ export default function Events() {
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get("/events", { params: { page, limit: 12 } });
-      setEvents(response.data?.data || []);
+      const response = await api.get("/events", {
+        params: { page, limit: 12 },
+      });
+      setEvents(response.data || []);
       setPagination(response.data?.meta || { total: 0, page: 1, lastPage: 1 });
     } catch (err) {
       console.error(err);
@@ -104,7 +106,9 @@ export default function Events() {
       name: formData.name,
       date: new Date(formData.date).toISOString(),
       budget: budget,
-      rounds: (rounds || []).filter((r) => !r.id).map((r) => ({ name: r.name })),
+      rounds: (rounds || [])
+        .filter((r) => !r.id)
+        .map((r) => ({ name: r.name })),
     };
 
     try {
@@ -164,7 +168,8 @@ export default function Events() {
             Sự kiện & Dự toán
           </h1>
           <p className="text-muted-foreground text-sm lg:text-lg max-w-xl font-bold opacity-60 leading-relaxed">
-            Lập kế hoạch tài chính thông minh, theo dõi chi tiết các đợt đóng góp và tối ưu hóa ngân sách cho mọi hoạt động của dòng họ.
+            Lập kế hoạch tài chính thông minh, theo dõi chi tiết các đợt đóng
+            góp và tối ưu hóa ngân sách cho mọi hoạt động của dòng họ.
           </p>
         </div>
         {canManageTransactions && (
@@ -199,7 +204,11 @@ export default function Events() {
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   onViewStatus={setStatusModalEvent}
-                  onViewTransactions={(e) => navigate("/transactions", { state: { eventId: e.id.toString() } })}
+                  onViewTransactions={(e) =>
+                    navigate("/transactions", {
+                      state: { eventId: e.id.toString() },
+                    })
+                  }
                 />
               ))}
 
@@ -213,7 +222,8 @@ export default function Events() {
                     Chưa có sự kiện nào
                   </CardTitle>
                   <CardDescription className="max-w-[400px] text-lg font-medium leading-relaxed opacity-70">
-                    Hãy bắt đầu hành trình quản lý tài chính dòng họ bằng cách thiết lập sự kiện đầu tiên ngay hôm nay.
+                    Hãy bắt đầu hành trình quản lý tài chính dòng họ bằng cách
+                    thiết lập sự kiện đầu tiên ngay hôm nay.
                   </CardDescription>
                   {canManageTransactions && (
                     <Button
@@ -240,9 +250,15 @@ export default function Events() {
                     Trước
                   </Button>
                   <div className="px-4 flex items-center gap-2">
-                    <span className="text-sm font-black text-primary">{page}</span>
-                    <span className="text-sm text-muted-foreground font-bold">/</span>
-                    <span className="text-sm text-muted-foreground font-bold">{pagination.lastPage}</span>
+                    <span className="text-sm font-black text-primary">
+                      {page}
+                    </span>
+                    <span className="text-sm text-muted-foreground font-bold">
+                      /
+                    </span>
+                    <span className="text-sm text-muted-foreground font-bold">
+                      {pagination.lastPage}
+                    </span>
                   </div>
                   <Button
                     variant="ghost"

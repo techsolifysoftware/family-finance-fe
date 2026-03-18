@@ -73,11 +73,11 @@ export default function Transactions() {
         api.get("/events"),
         api.get("/branches"),
       ]);
-      setTransactions(txRes.data.data);
-      setPagination(txRes.data.meta);
-      setMembers(memRes.data.data);
-      setEvents(evRes.data.data);
-      setBranches(brRes.data);
+      setTransactions(txRes.data?.data || []);
+      setPagination(txRes.data?.meta || { total: 0, page: 1, lastPage: 1 });
+      setMembers(memRes.data?.data || []);
+      setEvents(evRes.data?.data || []);
+      setBranches(brRes.data || []);
     } catch (err) {
       console.error(err);
       toast.error("Không thể tải dữ liệu giao dịch");
