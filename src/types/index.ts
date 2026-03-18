@@ -24,6 +24,7 @@ export interface Branch {
 export interface Member {
   id: number;
   name: string;
+  description?: string;
   branchId: number;
   branch?: Branch;
   createdAt?: string;

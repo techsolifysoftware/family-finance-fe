@@ -3,6 +3,7 @@ import { MemberTable } from "@/components/members/MemberTable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Pagination } from "@/components/ui/pagination";
 import {
   Select,
   SelectContent,
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import type { Branch, Member } from "@/types";
 import { Filter, Plus, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { api } from "../api";
 import { useAuth } from "../contexts/AuthContext";
@@ -25,35 +26,59 @@ export default function Members() {
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const [formData, setFormData] = useState({ name: "", branchId: "" });
+  const [formData, setFormData] = useState({ name: "", branchId: "", description: "" });
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedBranchFilter, setSelectedBranchFilter] = useState("ALL");
+  const [pagination, setPagination] = useState({
+    page: 1,
+    total: 0,
+    lastPage: 1,
+  });
 
-  const fetchData = async () => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [membersRes, branchesRes] = await Promise.all([
-        api.get("/members"),
-        api.get("/branches"),
-      ]);
-      setMembers(membersRes.data);
-      setBranches(branchesRes.data);
+      const branchRes = await api.get("/branches");
+      setBranches(branchRes.data);
+
+      const membersRes = await api.get("/members", {
+        params: {
+          page: pagination.page,
+          limit: 10,
+          search: debouncedSearch,
+          branchId: selectedBranchFilter === "ALL" ? undefined : parseInt(selectedBranchFilter),
+        },
+      });
+      setMembers(membersRes.data.data);
+      setPagination((prev) => ({
+        ...prev,
+        total: membersRes.data.meta.total,
+        lastPage: membersRes.data.meta.lastPage,
+      }));
     } catch (e) {
       console.error(e);
       toast.error("Không thể tải danh sách thành viên");
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, debouncedSearch, selectedBranchFilter]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const closeModal = () => {
     setShowModal(false);
     setEditingId(null);
-    setFormData({ name: "", branchId: "" });
+    setFormData({ name: "", branchId: "", description: "" });
   };
 
   const handleEdit = (member: Member) => {
@@ -61,6 +86,7 @@ export default function Members() {
     setFormData({
       name: member.name,
       branchId: member.branchId?.toString() || "",
+      description: member.description || "",
     });
     setShowModal(true);
   };
@@ -73,6 +99,7 @@ export default function Members() {
       const payload = {
         name: formData.name,
         branchId: parseInt(formData.branchId),
+        description: formData.description,
       };
 
       if (editingId) {
@@ -100,14 +127,6 @@ export default function Members() {
       );
     }
   };
-
-  const filteredMembers = members.filter((m: Member) => {
-    const matchSearch = m.name.toLowerCase().includes(search.toLowerCase());
-    const matchBranch =
-      selectedBranchFilter === "ALL" ||
-      m.branchId?.toString() === selectedBranchFilter;
-    return matchSearch && matchBranch;
-  });
 
   return (
     <div className="space-y-6 lg:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 px-0 sm:px-0">
@@ -176,17 +195,28 @@ export default function Members() {
           </CardHeader>
           <CardContent className="p-0">
             <MemberTable
-              members={filteredMembers}
+              members={members}
               loading={loading}
               canManage={canManageMembers}
               onEdit={handleEdit}
               onDelete={handleDelete}
             />
+            {pagination.lastPage > 1 && (
+              <div className="p-4 border-t border-border/40 flex justify-center">
+                <Pagination
+                  currentPage={pagination.page}
+                  totalPages={pagination.lastPage}
+                  onPageChange={(page) =>
+                    setPagination((prev) => ({ ...prev, page }))
+                  }
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <div className="flex items-center justify-between px-2 text-[11px] text-muted-foreground font-medium uppercase tracking-widest opacity-60">
-          <span>Tổng số: {filteredMembers.length} thành viên</span>
+          <span>Tổng số: {pagination.total} thành viên</span>
         </div>
       </div>
 

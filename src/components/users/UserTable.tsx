@@ -16,7 +16,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Edit2, Trash2, MoreHorizontal, User as UserIcon, ShieldAlert, ShieldCheck, Shield } from "lucide-react";
+import {
+  Edit2,
+  Trash2,
+  MoreHorizontal,
+  User as UserIcon,
+  ShieldAlert,
+  ShieldCheck,
+  Shield,
+} from "lucide-react";
 import type { User } from "@/types";
 
 interface UserTableProps {
@@ -39,7 +47,9 @@ export function UserTable({
           <div className="w-12 h-12 border-4 border-primary/20 rounded-full animate-pulse" />
           <div className="absolute inset-0 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
-        <p className="text-muted-foreground font-medium animate-pulse">Đang tải danh sách tài khoản...</p>
+        <p className="text-muted-foreground font-medium animate-pulse">
+          Đang tải danh sách tài khoản...
+        </p>
       </div>
     );
   }
@@ -74,7 +84,10 @@ export function UserTable({
         );
       default:
         return (
-          <Badge variant="outline" className="bg-slate-500/5 text-slate-500 border-slate-500/10 px-2.5 py-0.5 font-bold text-[10px] uppercase tracking-wider">
+          <Badge
+            variant="outline"
+            className="bg-slate-500/5 text-slate-500 border-slate-500/10 px-2.5 py-0.5 font-bold text-[10px] uppercase tracking-wider"
+          >
             <Shield className="w-3 h-3 mr-1.5" /> Người xem
           </Badge>
         );
@@ -96,7 +109,10 @@ export function UserTable({
         <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider px-2 py-1.5">
           Tùy chọn
         </DropdownMenuLabel>
-        <DropdownMenuItem onClick={() => onEdit(user)} className="cursor-pointer">
+        <DropdownMenuItem
+          onClick={() => onEdit(user)}
+          className="cursor-pointer"
+        >
           <Edit2 className="w-4 h-4 mr-2" /> Chỉnh sửa
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -117,15 +133,24 @@ export function UserTable({
         <Table>
           <TableHeader className="bg-muted/50 border-b">
             <TableRow className="hover:bg-transparent text-center">
-              <TableHead className="pl-6 py-4 font-bold text-foreground">Họ và tên</TableHead>
-              <TableHead className="py-4 font-bold text-foreground">Tên đăng nhập</TableHead>
-              <TableHead className="py-4 font-bold text-foreground text-center">Quyền hạn</TableHead>
+              <TableHead className="pl-6 py-4 font-bold text-foreground">
+                Họ và tên
+              </TableHead>
+              <TableHead className="py-4 font-bold text-foreground">
+                Tên đăng nhập
+              </TableHead>
+              <TableHead className="py-4 font-bold text-foreground text-center">
+                Quyền hạn
+              </TableHead>
               <TableHead className="w-[80px] pr-6 text-right"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.map((user) => (
-              <TableRow key={user.id} className="group hover:bg-muted/30 transition-colors">
+              <TableRow
+                key={user.id}
+                className="group hover:bg-muted/30 transition-colors"
+              >
                 <TableCell className="pl-6 py-4">
                   <div className="flex items-center gap-4">
                     <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary flex items-center justify-center text-sm font-bold shadow-sm ring-1 ring-primary/20 shrink-0">
@@ -134,9 +159,6 @@ export function UserTable({
                     <div className="flex flex-col">
                       <span className="font-bold text-foreground leading-tight">
                         {user.name}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground uppercase tracking-tighter mt-0.5">
-                        UID: #{user.id.toString().padStart(3, "0")}
                       </span>
                     </div>
                   </div>
@@ -159,7 +181,10 @@ export function UserTable({
       {/* Mobile View */}
       <div className="md:hidden divide-y divide-border">
         {users.map((user) => (
-          <div key={user.id} className="p-4 flex items-center justify-between gap-4 hover:bg-muted/20 active:bg-muted/40 transition-colors">
+          <div
+            key={user.id}
+            className="p-4 flex items-center justify-between gap-4 hover:bg-muted/20 active:bg-muted/40 transition-colors"
+          >
             <div className="flex items-center gap-3 min-w-0">
               <div className="shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary flex items-center justify-center text-sm font-bold shadow-sm border border-primary/10">
                 {user.name.split(" ").pop()?.charAt(0).toUpperCase()}
