@@ -12,6 +12,8 @@ import type { LucideIcon } from "lucide-react";
 import {
   Calendar,
   ChevronRight,
+  Receipt,
+  Target,
   TrendingDown,
   TrendingUp,
   Users,
@@ -75,31 +77,31 @@ const StatCard = ({
   bgColorClass: string;
   trend?: number;
 }) => (
-  <Card className="overflow-hidden transition-all hover:shadow-md border-border/50">
-    <CardContent className="p-6">
+  <Card className="group overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 border-border/40 bg-card/50 backdrop-blur-sm rounded-[2rem] border-none shadow-xl shadow-foreground/5">
+    <CardContent className="p-7">
       <div className="flex items-center justify-between">
-        <div className={cn("p-2.5 rounded-xl", bgColorClass, colorClass)}>
-          <Icon className="w-5 h-5" />
+        <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 duration-500 shadow-inner", bgColorClass, colorClass)}>
+          <Icon className="w-6 h-6" />
         </div>
-        {trend && (
-          <span
+        {trend !== undefined && (
+          <div
             className={cn(
-              "text-xs font-medium px-2 py-1 rounded-full",
+              "flex items-center gap-1 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest border",
               trend > 0
-                ? "bg-emerald-50 text-emerald-600"
-                : "bg-rose-50 text-rose-600",
+                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                : "bg-rose-500/10 text-rose-600 border-rose-500/20",
             )}
           >
-            {trend > 0 ? "+" : ""}
-            {trend}%
-          </span>
+            {trend > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+            {Math.abs(trend)}%
+          </div>
         )}
       </div>
-      <div className="mt-4">
-        <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        <h3 className="text-2xl font-bold tracking-tight mt-1">
+      <div className="mt-6 space-y-1">
+        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">{title}</p>
+        <h3 className="text-[28px] font-black tracking-tighter text-foreground leading-none tabular-nums">
           {amount.toLocaleString("vi-VN")}{" "}
-          <span className="text-lg font-normal text-muted-foreground">₫</span>
+          <span className="text-sm font-bold text-muted-foreground/40 uppercase tracking-widest ml-1">đ</span>
         </h3>
       </div>
     </CardContent>
@@ -123,22 +125,26 @@ const CustomTooltip = ({
 }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-background/95 backdrop-blur-sm p-3 rounded-lg shadow-xl border border-border text-sm">
-        <p className="font-bold mb-2">{label}</p>
-        {payload.map((entry: TooltipPayload, index: number) => (
-          <div key={index} className="flex items-center gap-2 mb-1">
-            <div
-              className="w-2 h-2 rounded-full"
-              style={{ backgroundColor: entry.color }}
-            />
-            <span className="text-muted-foreground capitalize">
-              {entry.name === "income" ? "Thu" : "Chi"}:
-            </span>
-            <span className="font-bold" style={{ color: entry.color }}>
-              {entry.value.toLocaleString("vi-VN")} ₫
-            </span>
-          </div>
-        ))}
+      <div className="bg-background/90 backdrop-blur-md p-4 rounded-2xl shadow-2xl border border-border/40 animate-in zoom-in-95 duration-200 min-w-[160px]">
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 pb-2 border-b border-border/40">{label}</p>
+        <div className="space-y-2">
+          {payload.map((entry, index) => (
+            <div key={index} className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-2 h-2 rounded-full shadow-sm"
+                  style={{ backgroundColor: entry.color }}
+                />
+                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-tight">
+                  {entry.name === "income" ? "THU" : "CHI"}:
+                </span>
+              </div>
+              <span className="text-xs font-black tabular-nums" style={{ color: entry.color }}>
+                {entry.value.toLocaleString("vi-VN")} đ
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -196,7 +202,12 @@ export default function Dashboard() {
   if (loading && !data) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+        <div className="relative">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+          </div>
+        </div>
       </div>
     );
   }
@@ -221,59 +232,40 @@ export default function Dashboard() {
   return (
     <div
       className={cn(
-        "space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20",
+        "space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000 pb-20",
         loading ? "opacity-50 pointer-events-none" : "",
       )}
     >
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Tổng quan tài chính
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2 border-b border-border/40">
+        <div className="space-y-1">
+          <h1 className="text-4xl font-black tracking-tighter text-foreground leading-none">
+            Dashboard
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Theo dõi dòng tiền và tiến độ các công việc trong dòng họ.
+          <p className="text-[13px] font-medium text-muted-foreground/80 max-w-md">
+            Hệ thống quản lý tài chính dòng họ thông minh & minh bạch.
           </p>
         </div>
-        <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border border-border/50">
-          <Button
-            variant={timeRange === "all" ? "secondary" : "ghost"}
-            size="sm"
-            className={cn(
-              "h-8",
-              timeRange === "all"
-                ? "shadow-none bg-background border border-border/50"
-                : "",
-            )}
-            onClick={() => setTimeRange("all")}
-          >
-            Tất cả
-          </Button>
-          <Button
-            variant={timeRange === "today" ? "secondary" : "ghost"}
-            size="sm"
-            className={cn(
-              "h-8",
-              timeRange === "today"
-                ? "shadow-none bg-background border border-border/50"
-                : "",
-            )}
-            onClick={() => setTimeRange("today")}
-          >
-            Hôm nay
-          </Button>
-          <Button
-            variant={timeRange === "year" ? "secondary" : "ghost"}
-            size="sm"
-            className={cn(
-              "h-8",
-              timeRange === "year"
-                ? "shadow-none bg-background border border-border/50"
-                : "",
-            )}
-            onClick={() => setTimeRange("year")}
-          >
-            Năm {new Date().getFullYear()}
-          </Button>
+        <div className="flex items-center gap-1.5 bg-muted/30 p-1.5 rounded-2xl border border-border/40 backdrop-blur-sm self-start md:self-auto">
+          {[
+            { id: "all", label: "Tất cả" },
+            { id: "today", label: "Hôm nay" },
+            { id: "year", label: `Năm ${new Date().getFullYear()}` },
+          ].map((range) => (
+            <Button
+              key={range.id}
+              variant={timeRange === range.id ? "secondary" : "ghost"}
+              size="sm"
+              className={cn(
+                "h-9 px-4 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all duration-300",
+                timeRange === range.id
+                  ? "bg-background shadow-xl shadow-foreground/5 border border-border/40"
+                  : "hover:bg-muted/50 text-muted-foreground/60 hover:text-foreground",
+              )}
+              onClick={() => setTimeRange(range.id as "all" | "today" | "year")}
+            >
+              {range.label}
+            </Button>
+          ))}
         </div>
       </div>
 
@@ -312,115 +304,124 @@ export default function Dashboard() {
 
       {/* Tiến độ sự kiện / Dự toán */}
       {data.recentEvents?.length > 0 && (
-        <Card className="border-border/50 shadow-sm overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-6">
-            <div className="space-y-1">
-              <CardTitle className="text-xl font-bold flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                Tiến độ sự kiện & Dự toán
-              </CardTitle>
-              <CardDescription>
-                Liên kết dự toán với dòng tiền thực tế.
-              </CardDescription>
+        <Card className="border-none shadow-xl shadow-foreground/5 bg-card/50 backdrop-blur-sm rounded-[2.5rem] overflow-hidden">
+          <CardHeader className="pb-8 pt-10 px-8">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1.5">
+                <CardTitle className="text-2xl font-black tracking-tighter flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+                    <Target className="w-5 h-5" />
+                  </div>
+                  Sự kiện & Dự toán
+                </CardTitle>
+                <CardDescription className="text-[13px] font-medium text-muted-foreground/70 ml-13">
+                  Theo dõi chi tiêu thực tế so với ngân sách dự kiến.
+                </CardDescription>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-muted/50 transition-all group"
+                onClick={() => navigate("/events")}
+              >
+                Tất cả sự kiện <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
+              </Button>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {data.recentEvents.map((event) => (
-                <div key={event.id} className="space-y-3 group">
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-bold text-sm line-clamp-1 group-hover:text-primary transition-colors">
-                      {event.name}
-                    </h3>
-                    <div className="flex items-center text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                      <Calendar className="w-3 h-3 mr-1" />{" "}
-                      {format(new Date(event.date || Date.now()), "dd/MM")}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-xs mb-1.5">
-                      <span className="text-muted-foreground">
-                        Chi tiêu:{" "}
-                        {event.actualSpending?.toLocaleString("vi-VN")} ₫
-                      </span>
+          <CardContent className="px-8 pb-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {data.recentEvents.map((event) => {
+                const isOverBudget = event.actualSpending > event.budget;
+                return (
+                  <div key={event.id} className="space-y-4 group/item">
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="space-y-1 min-w-0">
+                        <h3 className="font-black text-sm tracking-tight text-foreground line-clamp-1 group-hover/item:text-primary transition-colors">
+                          {event.name}
+                        </h3>
+                        <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
+                          <Calendar className="w-2.5 h-2.5" />
+                          {format(new Date(event.date || Date.now()), "dd/MM")}
+                        </div>
+                      </div>
                       <span
                         className={cn(
-                          "font-bold",
-                          event.actualSpending > event.budget
-                            ? "text-destructive"
-                            : "text-primary",
+                          "text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest tabular-nums",
+                          isOverBudget
+                            ? "bg-rose-500/10 text-rose-600"
+                            : "bg-primary/10 text-primary",
                         )}
                       >
                         {Math.round(event.progress)}%
                       </span>
                     </div>
-                    <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className={cn(
-                          "h-full transition-all duration-1000",
-                          event.actualSpending > event.budget
-                            ? "bg-destructive"
-                            : "bg-primary",
-                        )}
-                        style={{ width: `${Math.min(100, event.progress)}%` }}
-                      />
+
+                    <div className="space-y-2">
+                      <div className="relative h-2 w-full bg-muted/30 rounded-full overflow-hidden border border-border/20">
+                        <div
+                          className={cn(
+                            "h-full transition-all duration-1000 ease-out shadow-sm",
+                            isOverBudget ? "bg-rose-500" : "bg-primary",
+                          )}
+                          style={{ width: `${Math.min(100, event.progress)}%` }}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                         <div className="flex justify-between items-center text-[10px] font-bold">
+                          <span className="text-muted-foreground/60">THỰC CHI</span>
+                          <span className={cn("tabular-nums decoration-2", isOverBudget ? "text-rose-600" : "text-foreground")}>
+                            {event.actualSpending?.toLocaleString("vi-VN")} đ
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-[10px] font-bold">
+                          <span className="text-muted-foreground/60">DỰ TOÁN</span>
+                          <span className="text-muted-foreground tabular-nums">
+                            {event.budget?.toLocaleString("vi-VN")} đ
+                          </span>
+                        </div>
+                      </div>
                     </div>
+
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full h-9 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary/5 hover:text-primary transition-all border border-transparent hover:border-primary/20"
+                      onClick={() =>
+                        navigate("/transactions", {
+                          state: { eventId: event.id.toString() },
+                        })
+                      }
+                    >
+                      Chi tiết thu chi <TrendingUp className="w-3.5 h-3.5 ml-2" />
+                    </Button>
                   </div>
-                    <p className="text-[10px] text-muted-foreground flex justify-between items-center">
-                      <span>
-                        Ngân sách: {event.budget?.toLocaleString("vi-VN")} ₫
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 px-2 text-[10px] font-medium hover:bg-primary/10 hover:text-primary"
-                        onClick={() =>
-                          navigate("/transactions", {
-                            state: { eventId: event.id.toString() },
-                          })
-                        }
-                      >
-                        Xem thu chi <ChevronRight className="w-3 h-3 ml-0.5" />
-                      </Button>
-                    </p>
-                    {event.actualSpending > event.budget && (
-                      <p className="text-[10px] text-destructive font-medium text-right mt-1">
-                        Vượt{" "}
-                        {(
-                          ((event.actualSpending - event.budget) /
-                            event.budget) *
-                          100
-                        ).toFixed(0)}
-                        %
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
+                );
+              })}
+            </div>
+          </CardContent>
         </Card>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-border/50 shadow-sm">
-          <CardHeader>
-            <CardTitle>Biến động thu chi</CardTitle>
-            <CardDescription>
-              Dữ liệu theo từng tháng trong năm.
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card className="border-none shadow-xl shadow-foreground/5 bg-card/50 backdrop-blur-sm rounded-[2.5rem] overflow-hidden">
+          <CardHeader className="pb-4 pt-10 px-8">
+            <CardTitle className="text-xl font-black tracking-tighter uppercase whitespace-nowrap">Biến động thu chi</CardTitle>
+            <CardDescription className="text-xs font-semibold text-muted-foreground/60">
+              Dữ liệu tài chính theo từng tháng.
             </CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px] pl-2">
+          <CardContent className="h-[340px] px-4 pb-8">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={lineChartData}
-                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
               >
                 <defs>
                   <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
                     <stop
                       offset="5%"
                       stopColor="hsl(var(--primary))"
-                      stopOpacity={0.1}
+                      stopOpacity={0.2}
                     />
                     <stop
                       offset="95%"
@@ -431,108 +432,115 @@ export default function Dashboard() {
                   <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
                     <stop
                       offset="5%"
-                      stopColor="hsl(var(--destructive))"
-                      stopOpacity={0.1}
+                      stopColor="#f43f5e"
+                      stopOpacity={0.2}
                     />
                     <stop
                       offset="95%"
-                      stopColor="hsl(var(--destructive))"
+                      stopColor="#f43f5e"
                       stopOpacity={0}
                     />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
-                  strokeDasharray="3 3"
+                  strokeDasharray="4 4"
                   vertical={false}
                   stroke="hsl(var(--border))"
+                  opacity={0.5}
                 />
                 <XAxis
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
-                  dy={10}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }}
+                  dy={15}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(val) => `${val / 1000}k`}
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 12 }}
+                  tickFormatter={(val) => `${(val / 1000000).toFixed(1)}M`}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }}
                   dx={-10}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Area
                   type="monotone"
-                  name="Thu"
+                  name="income"
                   dataKey="income"
                   stroke="hsl(var(--primary))"
-                  strokeWidth={2}
+                  strokeWidth={4}
                   fillOpacity={1}
                   fill="url(#colorIncome)"
+                  animationDuration={1500}
                 />
                 <Area
                   type="monotone"
-                  name="Chi"
+                  name="expense"
                   dataKey="expense"
-                  stroke="hsl(var(--destructive))"
-                  strokeWidth={2}
+                  stroke="#f43f5e"
+                  strokeWidth={4}
                   fillOpacity={1}
                   fill="url(#colorExpense)"
+                  animationDuration={1500}
                 />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        <Card className="border-border/50 shadow-sm">
-          <CardHeader>
-            <CardTitle>Đóng góp theo chi</CardTitle>
-            <CardDescription>
-              So sánh giữa các chi nhánh trong họ.
+        <Card className="border-none shadow-xl shadow-foreground/5 bg-card/50 backdrop-blur-sm rounded-[2.5rem] overflow-hidden">
+          <CardHeader className="pb-4 pt-10 px-8">
+            <CardTitle className="text-xl font-black tracking-tighter uppercase whitespace-nowrap">Đóng góp & Chi nhánh</CardTitle>
+            <CardDescription className="text-xs font-semibold text-muted-foreground/60">
+              So sánh ngân sách giữa các đơn vị.
             </CardDescription>
           </CardHeader>
-          <CardContent className="h-[300px] pl-2">
+          <CardContent className="h-[340px] px-4 pb-8">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={branchData}
-                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                margin={{ top: 20, right: 20, left: 0, bottom: 0 }}
+                barGap={8}
               >
                 <CartesianGrid
-                  strokeDasharray="3 3"
+                  strokeDasharray="4 4"
                   vertical={false}
                   stroke="hsl(var(--border))"
+                  opacity={0.5}
                 />
                 <XAxis
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
-                  dy={10}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }}
+                  dy={15}
                 />
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(val) => `${val / 1000}k`}
-                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }}
+                  tickFormatter={(val) => `${(val / 1000000).toFixed(1)}M`}
+                  tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 700 }}
                   dx={-10}
                 />
                 <Tooltip
-                  cursor={{ fill: "hsl(var(--muted)/0.3)" }}
+                  cursor={{ fill: "hsl(var(--muted)/0.2)", radius: 10 }}
                   content={<CustomTooltip />}
                 />
                 <Bar
-                  name="Thu"
+                  name="income"
                   dataKey="income"
                   fill="hsl(var(--primary))"
-                  radius={[4, 4, 0, 0]}
-                  barSize={24}
+                  radius={[6, 6, 0, 0]}
+                  barSize={20}
+                  animationDuration={1500}
                 />
                 <Bar
-                  name="Chi"
+                  name="expense"
                   dataKey="expense"
-                  fill="#fb923c"
-                  radius={[4, 4, 0, 0]}
-                  barSize={24}
+                  fill="#f59e0b"
+                  radius={[6, 6, 0, 0]}
+                  barSize={20}
+                  animationDuration={1500}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -540,22 +548,25 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="border-border/50 shadow-sm">
-          <CardHeader>
-            <CardTitle>Tỷ trọng đóng góp</CardTitle>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <Card className="border-none shadow-xl shadow-foreground/5 bg-card/50 backdrop-blur-sm rounded-[2.5rem] overflow-hidden">
+          <CardHeader className="pb-2 pt-10 px-8">
+            <CardTitle className="text-xl font-black tracking-tighter uppercase whitespace-nowrap">Tỷ trọng đóng góp</CardTitle>
+            <CardDescription className="text-xs font-semibold text-muted-foreground/60">
+              Phân bổ nguồn thu theo chi nhánh.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-center">
-            <div className="h-[200px] w-full mt-2">
+          <CardContent className="flex flex-col items-center px-8 pb-10">
+            <div className="h-[220px] w-full mt-4 relative">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={branchData.filter((b) => b.income > 0)}
                     cx="50%"
                     cy="50%"
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
+                    innerRadius={70}
+                    outerRadius={90}
+                    paddingAngle={8}
                     dataKey="income"
                     stroke="none"
                   >
@@ -563,39 +574,39 @@ export default function Dashboard() {
                       <Cell
                         key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}
+                        className="hover:opacity-80 transition-opacity duration-300"
                       />
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(
-                      val:
-                        | string
-                        | number
-                        | readonly (string | number)[]
-                        | undefined,
-                    ) => [
-                      `${Number(val || 0).toLocaleString("vi-VN")} ₫`,
-                      "Đóng góp",
-                    ]}
+                    formatter={(val: number | string | undefined) => [`${Number(val || 0).toLocaleString("vi-VN")} đ`, "Đóng góp"]}
                     contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid hsl(var(--border))",
-                      boxShadow: "0 10px 15px -3px rgb(0 0 0 / 0.1)",
+                      borderRadius: "16px",
+                      border: "none",
+                      boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1)",
+                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      backdropFilter: "blur(8px)"
                     }}
                   />
                 </PieChart>
               </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Tổng thu</span>
+                <span className="text-xl font-black tracking-tighter tabular-nums">
+                  {data.totalIncome.toLocaleString("vi-VN")}
+                </span>
+              </div>
             </div>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 w-full px-2">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 mt-8 w-full">
               {branchData
                 .filter((b) => b.income > 0)
                 .map((b, i) => (
-                  <div key={b.name} className="flex items-center gap-2">
+                  <div key={b.name} className="flex items-center gap-2.5 group/legend">
                     <div
-                      className="w-2 h-2 rounded-full"
+                      className="w-2.5 h-2.5 rounded-full shadow-sm transition-transform group-hover/legend:scale-125"
                       style={{ backgroundColor: COLORS[i % COLORS.length] }}
                     />
-                    <span className="text-xs text-muted-foreground truncate">
+                    <span className="text-[11px] font-bold text-muted-foreground/80 group-hover/legend:text-foreground transition-colors truncate">
                       {b.name}
                     </span>
                   </div>
@@ -604,58 +615,58 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2 border-border/50 shadow-sm overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between pb-4">
-            <div className="space-y-1">
-              <CardTitle>Giao dịch gần nhất</CardTitle>
-              <CardDescription>
-                Lịch sử 5 hoạt động tài chính mới nhất.
+        <Card className="lg:col-span-2 border-none shadow-xl shadow-foreground/5 bg-card/50 backdrop-blur-sm rounded-[2.5rem] overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between pb-6 pt-10 px-8">
+            <div className="space-y-1.5">
+              <CardTitle className="text-xl font-black tracking-tighter uppercase whitespace-nowrap">Giao dịch gần nhất</CardTitle>
+              <CardDescription className="text-xs font-semibold text-muted-foreground/60">
+                5 hoạt động tài chính mới nhất.
               </CardDescription>
             </div>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="h-8"
+              className="rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-muted/50 transition-all group h-9"
               onClick={() => navigate("/transactions")}
             >
-              Xem tất cả <ChevronRight className="ml-1 w-4 h-4" />
+              Xem tất cả <ChevronRight className="ml-1 w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="divide-y divide-border/50">
+            <div className="divide-y divide-border/20">
               {data.recentTransactions?.length > 0 ? (
                 data.recentTransactions.map((tx) => (
                   <div
                     key={tx.id}
-                    className="flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
+                    className="flex items-center justify-between px-8 py-5 hover:bg-muted/30 transition-all group/tx cursor-pointer"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-5">
                       <div
                         className={cn(
-                          "w-9 h-9 rounded-full flex items-center justify-center",
+                          "w-12 h-12 rounded-[1.25rem] flex items-center justify-center transition-all duration-500 shadow-inner group-hover/tx:scale-110",
                           tx.type === "EXPENSE"
-                            ? "bg-rose-50 text-rose-600"
-                            : "bg-emerald-50 text-emerald-600",
+                            ? "bg-rose-500/10 text-rose-600"
+                            : "bg-emerald-500/10 text-emerald-600",
                         )}
                       >
                         {tx.type === "EXPENSE" ? (
-                          <TrendingDown className="w-4 h-4" />
+                          <TrendingDown className="w-5 h-5" />
                         ) : (
-                          <TrendingUp className="w-4 h-4" />
+                          <TrendingUp className="w-5 h-5" />
                         )}
                       </div>
-                      <div>
-                        <p className="text-sm font-semibold">
+                      <div className="space-y-1">
+                        <p className="text-sm font-black tracking-tight text-foreground group-hover/tx:text-primary transition-colors">
                           {tx.description}
                         </p>
-                        <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+                        <div className="flex items-center gap-2.5 text-[10px] font-black uppercase tracking-widest text-muted-foreground/50">
                           <span>
                             {format(new Date(tx.date), "dd MMMM, yyyy")}
                           </span>
                           {tx.member && (
                             <>
-                              <span>•</span>
-                              <span className="bg-muted px-1 rounded">
+                              <div className="w-1 h-1 rounded-full bg-border" />
+                              <span className="bg-muted/50 px-2 py-0.5 rounded-lg border border-border/30">
                                 {tx.member.name}
                               </span>
                             </>
@@ -663,23 +674,29 @@ export default function Dashboard() {
                         </div>
                       </div>
                     </div>
-                    <span
-                      className={cn(
-                        "text-sm font-bold",
-                        tx.type === "EXPENSE"
-                          ? "text-rose-600"
-                          : "text-emerald-600",
-                      )}
-                    >
-                      {tx.type === "EXPENSE" ? "-" : "+"}
-                      {tx.amount.toLocaleString("vi-VN")} ₫
-                    </span>
+                    <div className="text-right space-y-1">
+                       <span
+                        className={cn(
+                          "text-base font-black tracking-tighter tabular-nums",
+                          tx.type === "EXPENSE"
+                            ? "text-rose-600"
+                            : "text-emerald-600",
+                        )}
+                      >
+                        {tx.type === "EXPENSE" ? "-" : "+"}
+                        {tx.amount.toLocaleString("vi-VN")}
+                      </span>
+                      <p className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-widest">VNĐ</p>
+                    </div>
                   </div>
                 ))
               ) : (
-                <div className="py-12 text-center">
-                  <p className="text-sm text-muted-foreground">
-                    Chưa có giao dịch nào.
+                <div className="py-20 text-center space-y-4">
+                  <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mx-auto">
+                    <Receipt className="w-8 h-8 text-muted-foreground/30" />
+                  </div>
+                  <p className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/40">
+                    Chưa có giao dịch nào được ghi nhận.
                   </p>
                 </div>
               )}

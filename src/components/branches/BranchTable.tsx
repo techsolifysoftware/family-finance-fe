@@ -33,6 +33,44 @@ interface BranchTableProps {
   onDelete: (id: number) => void;
 }
 
+interface ActionMenuProps {
+  branch: Branch;
+  onEdit: (branch: Branch) => void;
+  onDelete: (id: number) => void;
+}
+
+const ActionMenu = ({ branch, onEdit, onDelete }: ActionMenuProps) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-9 w-9 p-0 hover:bg-muted focus:ring-1 focus:ring-primary/20 transition-all"
+      >
+        <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider px-2 py-1.5">
+        Tùy chọn
+      </DropdownMenuLabel>
+      <DropdownMenuItem
+        onClick={() => onEdit(branch)}
+        className="cursor-pointer"
+      >
+        <Edit2 className="w-4 h-4 mr-2" /> Chỉnh sửa chi
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+        onClick={() => onDelete(branch.id)}
+      >
+        <Trash2 className="w-4 h-4 mr-2" /> Xóa chi nhánh
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+);
+
 export function BranchTable({
   branches,
   loading,
@@ -67,38 +105,6 @@ export function BranchTable({
       </div>
     );
   }
-
-  const ActionMenu = ({ branch }: { branch: Branch }) => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 p-0 hover:bg-muted focus:ring-1 focus:ring-primary/20 transition-all"
-        >
-          <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider px-2 py-1.5">
-          Tùy chọn
-        </DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => onEdit(branch)}
-          className="cursor-pointer"
-        >
-          <Edit2 className="w-4 h-4 mr-2" /> Chỉnh sửa chi
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
-          onClick={() => onDelete(branch.id)}
-        >
-          <Trash2 className="w-4 h-4 mr-2" /> Xóa chi nhánh
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
 
   return (
     <div className="relative">
@@ -160,7 +166,7 @@ export function BranchTable({
                   </div>
                 </TableCell>
                 <TableCell className="pr-6 py-4 text-right">
-                  {canManage && <ActionMenu branch={branch} />}
+                  {canManage && <ActionMenu branch={branch} onEdit={onEdit} onDelete={onDelete} />}
                 </TableCell>
               </TableRow>
             ))}
@@ -201,7 +207,7 @@ export function BranchTable({
             </div>
             {canManage && (
               <div className="shrink-0">
-                <ActionMenu branch={branch} />
+                <ActionMenu branch={branch} onEdit={onEdit} onDelete={onDelete} />
               </div>
             )}
           </div>

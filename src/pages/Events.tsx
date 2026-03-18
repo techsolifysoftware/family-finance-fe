@@ -8,10 +8,12 @@ import { format } from "date-fns";
 import { Plus, Target } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import { api } from "../api";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function Events() {
+  const navigate = useNavigate();
   const { canManageTransactions } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -143,40 +145,43 @@ export default function Events() {
   };
 
   return (
-    <div className="space-y-6 lg:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 px-0 sm:px-0">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 px-4 sm:px-0">
-        <div className="space-y-1">
-          <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-foreground">
+    <div className="space-y-10 lg:space-y-14 animate-in fade-in slide-in-from-bottom-8 duration-1000 pb-20 px-0 sm:px-0">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 px-6 sm:px-0">
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-[10px] font-black uppercase tracking-[0.2em] mb-1">
+            <Target className="w-3 h-3" />
+            Quản lý mục tiêu
+          </div>
+          <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-foreground leading-none">
             Sự kiện & Dự toán
           </h1>
-          <p className="text-muted-foreground text-sm lg:text-base max-w-lg">
-            Lập kế hoạch và theo dõi các đợt đóng góp cũng như chi tiêu cho các
-            công việc của dòng họ.
+          <p className="text-muted-foreground text-sm lg:text-lg max-w-xl font-medium leading-relaxed">
+            Lập kế hoạch tài chính thông minh, theo dõi chi tiết các đợt đóng góp và tối ưu hóa ngân sách cho mọi hoạt động của dòng họ.
           </p>
         </div>
         {canManageTransactions && (
           <Button
             onClick={() => setShowModal(true)}
-            className="w-full sm:w-auto shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-0.5 active:translate-y-0 h-11 px-6 rounded-xl font-bold"
+            className="w-full md:w-auto shadow-2xl shadow-primary/30 hover:shadow-primary/40 transition-all hover:-translate-y-1 active:translate-y-0 h-14 px-8 rounded-2xl font-black text-sm uppercase tracking-widest bg-primary text-primary-foreground"
           >
-            <Plus className="w-5 h-5 mr-2" /> Tạo sự kiện mới
+            <Plus className="w-5 h-5 mr-3" /> Tạo sự kiện mới
           </Button>
         )}
       </div>
 
-      <div className="px-4 sm:px-0">
+      <div className="px-6 sm:px-0">
         {loading && events.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <div className="relative">
-              <div className="w-12 h-12 border-4 border-primary/20 rounded-full animate-pulse" />
-              <div className="absolute inset-0 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <div className="flex flex-col items-center justify-center py-32 gap-6 bg-card/30 backdrop-blur-sm rounded-[3rem] border border-dashed border-border/40">
+            <div className="relative group">
+              <div className="w-20 h-20 border-8 border-primary/10 rounded-[2rem] animate-pulse group-hover:scale-110 transition-transform duration-500" />
+              <div className="absolute inset-0 w-20 h-20 border-8 border-primary border-t-transparent rounded-[2rem] animate-spin" />
             </div>
-            <p className="text-muted-foreground font-medium animate-pulse">
-              Đang tải danh sách sự kiện...
+            <p className="text-muted-foreground font-black uppercase tracking-[0.3em] text-xs animate-pulse">
+              Đang đồng bộ dữ liệu...
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             {events.map((event) => (
               <EventCard
                 key={event.id}
@@ -185,27 +190,28 @@ export default function Events() {
                 onEdit={handleEdit}
                 onDelete={handleDelete}
                 onViewStatus={setStatusModalEvent}
+                onViewTransactions={(e) => navigate("/transactions", { state: { eventId: e.id.toString() } })}
               />
             ))}
 
             {events.length === 0 && !loading && (
-              <Card className="col-span-full border-none shadow-xl shadow-foreground/5 bg-card/50 backdrop-blur-sm rounded-3xl py-16 flex flex-col items-center justify-center text-center">
-                <div className="p-5 bg-primary/10 rounded-2xl mb-4 text-primary">
-                  <Target className="w-8 h-8" />
+              <Card className="col-span-full border-none shadow-2xl shadow-foreground/5 bg-card/50 backdrop-blur-xl rounded-[3rem] py-24 flex flex-col items-center justify-center text-center overflow-hidden relative">
+                <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.02] to-transparent pointer-events-none" />
+                <div className="relative p-8 bg-primary/10 rounded-[2.5rem] mb-8 text-primary shadow-inner scale-125">
+                  <Target className="w-10 h-10" />
                 </div>
-                <CardTitle className="text-xl font-bold">
+                <CardTitle className="text-3xl font-black tracking-tight mb-4">
                   Chưa có sự kiện nào
                 </CardTitle>
-                <CardDescription className="max-w-[320px] mt-2 text-base">
-                  Hãy bắt đầu lập kế hoạch cho các công việc của dòng họ bằng
-                  cách tạo sự kiện đầu tiên.
+                <CardDescription className="max-w-[400px] text-lg font-medium leading-relaxed opacity-70">
+                  Hãy bắt đầu hành trình quản lý tài chính dòng họ bằng cách thiết lập sự kiện đầu tiên ngay hôm nay.
                 </CardDescription>
                 {canManageTransactions && (
                   <Button
                     onClick={() => setShowModal(true)}
-                    className="mt-8 h-11 px-8 rounded-xl font-bold shadow-lg shadow-primary/20"
+                    className="mt-12 h-14 px-10 rounded-2xl font-black uppercase tracking-widest shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all bg-primary text-primary-foreground"
                   >
-                    <Plus className="w-5 h-5 mr-2" /> Tạo sự kiện ngay
+                    <Plus className="w-6 h-6 mr-3" /> Thiết lập ngay
                   </Button>
                 )}
               </Card>

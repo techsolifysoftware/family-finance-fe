@@ -34,6 +34,70 @@ interface UserTableProps {
   onDelete: (id: number) => void;
 }
 
+const getRoleBadge = (role: string) => {
+  switch (role) {
+    case "ADMIN":
+      return (
+        <Badge className="bg-rose-500/10 text-rose-600 hover:bg-rose-500/15 border-rose-500/20 px-2.5 py-0.5 font-bold text-[10px] uppercase tracking-wider">
+          <ShieldAlert className="w-3 h-3 mr-1.5" /> Quản trị viên
+        </Badge>
+      );
+    case "MANAGER":
+      return (
+        <Badge className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/15 border-blue-500/20 px-2.5 py-0.5 font-bold text-[10px] uppercase tracking-wider">
+          <ShieldCheck className="w-3 h-3 mr-1.5" /> Quản lý
+        </Badge>
+      );
+    default:
+      return (
+        <Badge
+          variant="outline"
+          className="bg-slate-500/5 text-slate-500 border-slate-500/10 px-2.5 py-0.5 font-bold text-[10px] uppercase tracking-wider"
+        >
+          <Shield className="w-3 h-3 mr-1.5" /> Người xem
+        </Badge>
+      );
+  }
+};
+
+interface ActionMenuProps {
+  user: User;
+  onEdit: (user: User) => void;
+  onDelete: (id: number) => void;
+}
+
+const ActionMenu = ({ user, onEdit, onDelete }: ActionMenuProps) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-9 w-9 p-0 hover:bg-muted focus:ring-1 focus:ring-primary/20 transition-all"
+      >
+        <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider px-2 py-1.5">
+        Tùy chọn
+      </DropdownMenuLabel>
+      <DropdownMenuItem
+        onClick={() => onEdit(user)}
+        className="cursor-pointer"
+      >
+        <Edit2 className="w-4 h-4 mr-2" /> Chỉnh sửa
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+        onClick={() => onDelete(user.id)}
+      >
+        <Trash2 className="w-4 h-4 mr-2" /> Xóa tài khoản
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+);
+
 export function UserTable({
   users,
   loading,
@@ -67,64 +131,6 @@ export function UserTable({
       </div>
     );
   }
-
-  const getRoleBadge = (role: string) => {
-    switch (role) {
-      case "ADMIN":
-        return (
-          <Badge className="bg-rose-500/10 text-rose-600 hover:bg-rose-500/15 border-rose-500/20 px-2.5 py-0.5 font-bold text-[10px] uppercase tracking-wider">
-            <ShieldAlert className="w-3 h-3 mr-1.5" /> Quản trị viên
-          </Badge>
-        );
-      case "MANAGER":
-        return (
-          <Badge className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/15 border-blue-500/20 px-2.5 py-0.5 font-bold text-[10px] uppercase tracking-wider">
-            <ShieldCheck className="w-3 h-3 mr-1.5" /> Quản lý
-          </Badge>
-        );
-      default:
-        return (
-          <Badge
-            variant="outline"
-            className="bg-slate-500/5 text-slate-500 border-slate-500/10 px-2.5 py-0.5 font-bold text-[10px] uppercase tracking-wider"
-          >
-            <Shield className="w-3 h-3 mr-1.5" /> Người xem
-          </Badge>
-        );
-    }
-  };
-
-  const ActionMenu = ({ user }: { user: User }) => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 p-0 hover:bg-muted focus:ring-1 focus:ring-primary/20 transition-all"
-        >
-          <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider px-2 py-1.5">
-          Tùy chọn
-        </DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => onEdit(user)}
-          className="cursor-pointer"
-        >
-          <Edit2 className="w-4 h-4 mr-2" /> Chỉnh sửa
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
-          onClick={() => onDelete(user.id)}
-        >
-          <Trash2 className="w-4 h-4 mr-2" /> Xóa tài khoản
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
 
   return (
     <div className="relative">
@@ -170,7 +176,7 @@ export function UserTable({
                   {getRoleBadge(user.role)}
                 </TableCell>
                 <TableCell className="pr-6 py-4 text-right">
-                  <ActionMenu user={user} />
+                  <ActionMenu user={user} onEdit={onEdit} onDelete={onDelete} />
                 </TableCell>
               </TableRow>
             ))}
@@ -205,7 +211,7 @@ export function UserTable({
               </div>
             </div>
             <div className="shrink-0">
-              <ActionMenu user={user} />
+              <ActionMenu user={user} onEdit={onEdit} onDelete={onDelete} />
             </div>
           </div>
         ))}

@@ -34,6 +34,48 @@ interface MemberTableProps {
   onDelete: (id: number) => void;
 }
 
+interface ActionMenuProps {
+  member: Member;
+  onEdit: (member: Member) => void;
+  onDelete: (id: number) => void;
+}
+
+const ActionMenu = ({ member, onEdit, onDelete }: ActionMenuProps) => (
+  <DropdownMenu>
+    <DropdownMenuTrigger asChild>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-9 w-9 p-0 hover:bg-muted focus:ring-1 focus:ring-primary/20 transition-all"
+      >
+        <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
+      </Button>
+    </DropdownMenuTrigger>
+    <DropdownMenuContent align="end" className="w-48">
+      <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider px-2 py-1.5">
+        Tùy chọn
+      </DropdownMenuLabel>
+      <DropdownMenuItem
+        onClick={() => onEdit(member)}
+        className="cursor-pointer"
+      >
+        <Edit2 className="w-4 h-4 mr-2" /> Chỉnh sửa
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem
+        className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+        onClick={() => {
+          if (window.confirm("Bạn có chắc chắn muốn xóa thành viên này?")) {
+            onDelete(member.id);
+          }
+        }}
+      >
+        <Trash2 className="w-4 h-4 mr-2" /> Xóa hội viên
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
+);
+
 export function MemberTable({
   members,
   loading,
@@ -68,42 +110,6 @@ export function MemberTable({
       </div>
     );
   }
-
-  const ActionMenu = ({ member }: { member: Member }) => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-9 w-9 p-0 hover:bg-muted focus:ring-1 focus:ring-primary/20 transition-all"
-        >
-          <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider px-2 py-1.5">
-          Tùy chọn
-        </DropdownMenuLabel>
-        <DropdownMenuItem
-          onClick={() => onEdit(member)}
-          className="cursor-pointer"
-        >
-          <Edit2 className="w-4 h-4 mr-2" /> Chỉnh sửa
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
-          onClick={() => {
-            if (window.confirm("Bạn có chắc chắn muốn xóa thành viên này?")) {
-              onDelete(member.id);
-            }
-          }}
-        >
-          <Trash2 className="w-4 h-4 mr-2" /> Xóa hội viên
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
 
   return (
     <div className="relative">
@@ -177,7 +183,7 @@ export function MemberTable({
                   </Badge>
                 </TableCell>
                 <TableCell className="pr-6 py-4 text-right">
-                  {canManage && <ActionMenu member={member} />}
+                  {canManage && <ActionMenu member={member} onEdit={onEdit} onDelete={onDelete} />}
                 </TableCell>
               </TableRow>
             ))}
@@ -215,7 +221,7 @@ export function MemberTable({
 
               {canManage && (
                 <div className="shrink-0">
-                  <ActionMenu member={member} />
+                  <ActionMenu member={member} onEdit={onEdit} onDelete={onDelete} />
                 </div>
               )}
             </div>

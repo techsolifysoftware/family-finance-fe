@@ -191,7 +191,7 @@ export function TransactionFormModal({
                 <SelectValue placeholder="Chọn thành viên" />
               </SelectTrigger>
               <SelectContent>
-                {members.map((m) => (
+                {(members || []).map((m) => (
                   <SelectItem key={m.id} value={m.id.toString()}>
                     {m.name} ({m.branch?.name})
                   </SelectItem>

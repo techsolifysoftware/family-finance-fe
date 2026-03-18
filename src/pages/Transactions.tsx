@@ -69,13 +69,13 @@ export default function Transactions() {
 
       const [txRes, memRes, evRes, brRes] = await Promise.all([
         api.get("/transactions", { params: qParams }),
-        api.get("/members"),
+        api.get("/members", { params: { page: 1, limit: 1000 } }),
         api.get("/events"),
         api.get("/branches"),
       ]);
       setTransactions(txRes.data.data);
       setPagination(txRes.data.meta);
-      setMembers(memRes.data);
+      setMembers(memRes.data.data);
       setEvents(evRes.data);
       setBranches(brRes.data);
     } catch (err) {
